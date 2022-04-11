@@ -185,6 +185,17 @@ func (i *Insert) String() string {
 	return b.String()
 }
 
+// IsEmpty return true if all parts not filed
+func (i *Insert) IsEmpty() bool {
+	return i == nil || (i.with.Len() == 0 &&
+		i.into == "" &&
+		len(i.from) == 0 &&
+		len(i.columns) == 0 &&
+		len(i.values) == 0 &&
+		len(i.returning) == 0 &&
+		i.conflict.IsEmpty())
+}
+
 // SQL return query with params
 func (i *Insert) SQL() (query string, params []any) {
 	return i.String(), i.values
