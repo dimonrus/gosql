@@ -27,7 +27,7 @@ type Insert struct {
 	// conflict expression
 	conflict conflict
 	// returning
-	returning []string
+	returning expression
 }
 
 // On conflict query part
@@ -178,8 +178,8 @@ func (i *Insert) String() string {
 	if !i.conflict.IsEmpty() {
 		b.WriteString(" " + i.Conflict().String())
 	}
-	if len(i.returning) > 0 {
-		b.WriteString(" RETURNING " + strings.Join(i.returning, ", "))
+	if i.returning.Len() > 0 {
+		b.WriteString(" RETURNING " + i.returning.String(", "))
 	}
 	b.WriteString(";")
 	return b.String()
@@ -192,7 +192,7 @@ func (i *Insert) IsEmpty() bool {
 		len(i.from) == 0 &&
 		len(i.columns) == 0 &&
 		len(i.values) == 0 &&
-		len(i.returning) == 0 &&
+		i.returning.Len() == 0 &&
 		i.conflict.IsEmpty())
 }
 
@@ -207,15 +207,20 @@ func (i *Insert) Conflict() *conflict {
 }
 
 // AddReturning Add returning expression
-func (i *Insert) AddReturning(returning ...string) *Insert {
-	i.returning = append(i.returning, returning...)
+func (i *Insert) AddReturning(returning string, args ...any) *Insert {
+	i.returning.Add(returning, args...)
 	return i
 }
 
 // ResetReturning Reset returning expressions
 func (i *Insert) ResetReturning() *Insert {
-	i.returning = make([]string, 0)
+	i.returning.Reset()
 	return i
+}
+
+// GetReturningParams Get returning params
+func (i *Insert) GetReturningParams() []any {
+	return i.returning.Params()
 }
 
 // From insert from
@@ -276,18 +281,18 @@ func (i *Insert) Columns(column ...string) *Insert {
 	return i
 }
 
-// Columns Set columns
+// ResetColumns reset columns
 func (i *Insert) ResetColumns() *Insert {
 	i.columns = make([]string, 0)
 	return i
 }
 
-// Get With
+// GetWith Get with query
 func (i *Insert) GetWith(name string) *Select {
 	return i.with.Get(name)
 }
 
-// Add With
+// With add with query
 func (i *Insert) With(name string, qb *Select) *Insert {
 	i.with.Add(name, qb)
 	return i
@@ -304,7 +309,7 @@ func (i *Insert) WithValues() []any {
 	return i.with.Values()
 }
 
-// New Insert Query Builder
+// NewInsert new insert query builder
 func NewInsert() *Insert {
 	return &Insert{
 		with: sqlWith{

@@ -47,7 +47,7 @@ func (e *expression) String(delimiter string) string {
 
 // AddParams add params
 func (e *expression) AddParams(args ...any) []any {
-	e.params = append(e.params, args)
+	e.params = append(e.params, args...)
 	return e.params
 }
 

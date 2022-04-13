@@ -17,7 +17,7 @@ type Update struct {
 	// condition
 	condition Condition
 	// returning
-	returning []string
+	returning expression
 }
 
 // IsEmpty check if query is empty
@@ -28,7 +28,7 @@ func (u *Update) IsEmpty() bool {
 		u.condition.IsEmpty() &&
 		len(u.set) == 0 &&
 		len(u.values) == 0 &&
-		len(u.returning) == 0)
+		u.returning.Len() == 0)
 }
 
 // From update
@@ -76,8 +76,8 @@ func (u *Update) String() string {
 	if !u.condition.IsEmpty() {
 		b.WriteString(" WHERE " + u.condition.String())
 	}
-	if len(u.returning) > 0 {
-		b.WriteString(" RETURNING " + strings.Join(u.returning, ", "))
+	if u.returning.Len() > 0 {
+		b.WriteString(" RETURNING " + u.returning.String(", "))
 	}
 	b.WriteString(";")
 	return b.String()
@@ -113,15 +113,20 @@ func (u *Update) ResetTable() *Update {
 }
 
 // AddReturning Add returning expression
-func (u *Update) AddReturning(returning ...string) *Update {
-	u.returning = append(u.returning, returning...)
+func (u *Update) AddReturning(returning string, args ...any) *Update {
+	u.returning.Add(returning, args...)
 	return u
 }
 
 // ResetReturning Reset returning expressions
 func (u *Update) ResetReturning() *Update {
-	u.returning = make([]string, 0)
+	u.returning.Reset()
 	return u
+}
+
+// GetReturningParams Get returning params
+func (u *Update) GetReturningParams() []any {
+	return u.returning.Params()
 }
 
 // Set expression

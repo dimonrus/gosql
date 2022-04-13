@@ -28,6 +28,9 @@ func TestQB_String(t *testing.T) {
 	qb.Relate("LEFT JOIN mv_contracts_items AS ci ON ci.id = mr.contract_id")
 	qb.Where().AddExpression("mr.object_id IS NOT NULL")
 
+	if qb.String() != "WITH mv_right_items AS (SELECT id, contract_id, object_id FROM mv_right WHERE (object_id = ?) ORDER BY terrirtory_name LIMIT 10 OFFSET 0),mv_contracts_items AS (SELECT id, contract_name FROM mv_contracts WHERE (contract_sum > ?) LIMIT 5 OFFSET 0) SELECT mo.id, mo.title, mo.rightholder_ids, mr.id, mr.contract_id FROM mv_object mo JOIN mv_right_items AS mr ON mr.object_id = mo.id LEFT JOIN mv_contracts_items AS ci ON ci.id = mr.contract_id WHERE (mr.object_id IS NOT NULL)" {
+		t.Fatal("wrong query")
+	}
 	fmt.Println(qb.String())
 }
 

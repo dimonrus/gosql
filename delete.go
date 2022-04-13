@@ -13,7 +13,7 @@ type Delete struct {
 	// where condition
 	where Condition
 	// returning
-	returning []string
+	returning expression
 }
 
 // IsEmpty check if query is empty
@@ -22,7 +22,7 @@ func (d *Delete) IsEmpty() bool {
 		d.from == "" &&
 		len(d.using) == 0 &&
 		d.where.IsEmpty() &&
-		len(d.returning) == 0)
+		d.returning.Len() == 0)
 }
 
 // From Set from value
@@ -62,15 +62,20 @@ func (d *Delete) ResetCondition() *Delete {
 }
 
 // AddReturning Add returning expression
-func (d *Delete) AddReturning(returning ...string) *Delete {
-	d.returning = append(d.returning, returning...)
+func (d *Delete) AddReturning(returning string, args ...any) *Delete {
+	d.returning.Add(returning, args...)
 	return d
 }
 
 // ResetReturning Reset returning expressions
 func (d *Delete) ResetReturning() *Delete {
-	d.returning = d.returning[:0]
+	d.returning.Reset()
 	return d
+}
+
+// GetReturningParams Get returning params
+func (d *Delete) GetReturningParams() []any {
+	return d.returning.Params()
 }
 
 // String return result query
@@ -92,8 +97,8 @@ func (d *Delete) String() string {
 	if !d.where.IsEmpty() {
 		b.WriteString(" WHERE " + d.where.String())
 	}
-	if len(d.returning) > 0 {
-		b.WriteString(" RETURNING " + strings.Join(d.returning, ", "))
+	if d.returning.Len() > 0 {
+		b.WriteString(" RETURNING " + d.returning.String(", "))
 	}
 	b.WriteString(";")
 	return b.String()

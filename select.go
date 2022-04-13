@@ -212,86 +212,74 @@ func (q *Select) GetArguments() []interface{} {
 
 // Make SQL query
 func (q *Select) String() string {
-	var result = make([]string, 0)
-	var union = make([]string, 0)
-	var except = make([]string, 0)
-	var intersect = make([]string, 0)
+	b := strings.Builder{}
 
 	// With render
 	if q.with.Len() > 0 {
-		result = append(result, q.with.String())
+		b.WriteString(q.with.String() + " ")
 	}
 
 	// Select columns
 	if len(q.columns) > 0 {
-		result = append(result, "SELECT "+strings.Join(q.columns, ", "))
+		b.WriteString("SELECT " + strings.Join(q.columns, ", "))
 	}
 
 	// From table
 	if len(q.from) > 0 {
-		result = append(result, "FROM "+strings.Join(q.from, ", "))
+		b.WriteString(" FROM " + strings.Join(q.from, ", "))
 	}
 
 	// From table
 	if len(q.join) > 0 {
-		result = append(result, strings.Join(q.join, " "))
+		b.WriteString(" " + strings.Join(q.join, " "))
 	}
 
 	// Where conditions
 	if len(q.where.expression) > 0 || q.where.merge != nil {
-		result = append(result, "WHERE "+q.where.String())
+		b.WriteString(" WHERE " + q.where.String())
 	}
 
 	// Prepare groups
 	if len(q.group) > 0 {
-		result = append(result, "GROUP BY "+strings.Join(q.group, ", "))
+		b.WriteString(" GROUP BY " + strings.Join(q.group, ", "))
 	}
 
 	// Prepare having expression
 	if len(q.having.expression) > 0 || q.having.merge != nil {
-		result = append(result, "HAVING "+q.having.String())
+		b.WriteString(" HAVING " + q.having.String())
 	}
 
 	// Prepare orders
 	if len(q.orders) > 0 {
-		result = append(result, "ORDER BY "+strings.Join(q.orders, ", "))
+		b.WriteString(" ORDER BY " + strings.Join(q.orders, ", "))
 	}
 
 	// Prepare pagination
 	if q.pagination.Limit > 0 {
-		result = append(result, fmt.Sprintf("LIMIT %v OFFSET %v", q.pagination.Limit, q.pagination.Offset))
+		b.WriteString(fmt.Sprintf(" LIMIT %v OFFSET %v", q.pagination.Limit, q.pagination.Offset))
 	}
 
 	// Union render
-	if len(q.union) > 0 {
-		for _, u := range q.union {
-			union = append(union, u.String())
-		}
-		result = append(result, "UNION "+strings.Join(union, " UNION "))
+	for _, u := range q.union {
+		b.WriteString(" UNION " + u.String())
 	}
 
 	// Except render
-	if len(q.except) > 0 {
-		for _, u := range q.except {
-			except = append(except, u.String())
-		}
-		result = append(result, "EXCEPT "+strings.Join(except, " EXCEPT "))
+	for _, u := range q.except {
+		b.WriteString(" EXCEPT " + u.String())
 	}
 
 	// Intersect render
-	if len(q.intersect) > 0 {
-		for _, i := range q.intersect {
-			intersect = append(intersect, i.String())
-		}
-		result = append(result, "INTERSECT "+strings.Join(intersect, " INTERSECT "))
+	for _, i := range q.intersect {
+		b.WriteString(" INTERSECT " + i.String())
 	}
 
 	// Check if the query is for sub query
 	if q.SubQuery {
-		return "(" + strings.Join(result, " ") + ")"
+		return "(" + b.String() + ")"
 	}
 
-	return strings.Join(result, " ")
+	return b.String()
 }
 
 // New Query Builder

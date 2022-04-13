@@ -47,7 +47,7 @@ func TestUpdate_String(t *testing.T) {
 			Set("temp_lo = temp_lo+1").
 			Set("temp_hi = temp_lo+15").
 			Set("prcp = DEFAULT").
-			AddReturning("temp_lo", "temp_hi", "prcp").
+			AddReturning("temp_lo").AddReturning("temp_hi").AddReturning("prcp").
 			Condition(*cond)
 		t.Log(u.String())
 		if u.String() != "UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT WHERE (city = ? AND date = ?) RETURNING temp_lo, temp_hi, prcp;" || len(append(u.GetValues(), cond.GetArguments()...)) != 2 {
