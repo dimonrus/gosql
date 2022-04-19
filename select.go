@@ -6,7 +6,7 @@ import (
 )
 
 // SQL Pagination limit offset
-type sqlPagination struct {
+type pagination struct {
 	// limit
 	Limit int
 	// offset
@@ -17,7 +17,7 @@ type sqlPagination struct {
 // Not a thread safety
 type Select struct {
 	// with queries
-	with sqlWith
+	with with
 	// columns
 	columns []string
 	// form rows
@@ -39,9 +39,14 @@ type Select struct {
 	// having conditions
 	having Condition
 	// pagination for pages
-	pagination sqlPagination
+	pagination pagination
 	// is subquery. Put query in bracers
 	SubQuery bool
+}
+
+// SQL Get sql query
+func (q *Select) SQL() (query string, params []any, returning []any) {
+	return q.String(), q.GetArguments(), nil
 }
 
 // Add With
@@ -175,7 +180,7 @@ func (q *Select) ResetGroupBy() *Select {
 
 // Set pagination
 func (q *Select) SetPagination(limit int, offset int) *Select {
-	q.pagination = sqlPagination{Limit: limit, Offset: offset}
+	q.pagination = pagination{Limit: limit, Offset: offset}
 	return q
 }
 
@@ -285,7 +290,7 @@ func (q *Select) String() string {
 // New Query Builder
 func NewSelect() *Select {
 	return &Select{
-		with: sqlWith{
+		with: with{
 			keys:    make(map[int]string),
 			queries: make([]*Select, 0),
 		},

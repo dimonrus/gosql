@@ -5,7 +5,7 @@ import "strings"
 // Update query builder
 type Update struct {
 	// with query
-	with sqlWith
+	with with
 	// table name
 	table string
 	// set of changes
@@ -165,10 +165,15 @@ func (u *Update) ResetWith() *Update {
 	return u
 }
 
+// SQL Get sql query
+func (u *Update) SQL() (query string, params []any, returning []any) {
+	return u.String(), append(append(u.with.Values(), u.values...), u.condition.GetArguments()...), u.returning.Params()
+}
+
 // NewUpdate Update Query Builder
 func NewUpdate() *Update {
 	return &Update{
-		with: sqlWith{
+		with: with{
 			keys: make(map[int]string),
 		},
 	}

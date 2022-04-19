@@ -2,6 +2,9 @@ package gosql
 
 import "strings"
 
+// EnumDelimiter for join strings
+const EnumDelimiter = "#"
+
 // Expression slice
 type expression struct {
 	// list of expressions
@@ -12,11 +15,7 @@ type expression struct {
 
 // Add expressions
 func (e *expression) Add(expr string, args ...any) {
-	if e.Len() == 0 {
-		e.list.WriteString(expr)
-	} else {
-		e.list.WriteString("|" + expr)
-	}
+	e.AddExpressions(expr)
 	e.AddParams(args...)
 }
 
@@ -42,13 +41,25 @@ func (e *expression) String(delimiter string) string {
 	if e.Len() == 0 {
 		return ""
 	}
-	return strings.ReplaceAll(e.list.String(), "|", delimiter)
+	return strings.ReplaceAll(e.list.String(), EnumDelimiter, delimiter)
 }
 
 // AddParams add params
-func (e *expression) AddParams(args ...any) []any {
+func (e *expression) AddParams(args ...any) *expression {
 	e.params = append(e.params, args...)
-	return e.params
+	return e
+}
+
+// AddExpressions add expressions
+func (e *expression) AddExpressions(args ...string) *expression {
+	for _, arg := range args {
+		if e.Len() == 0 {
+			e.list.WriteString(arg)
+		} else {
+			e.list.WriteString(EnumDelimiter + arg)
+		}
+	}
+	return e
 }
 
 // Params return params

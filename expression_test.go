@@ -35,3 +35,11 @@ func BenchmarkExpression_Get(b *testing.B) {
 	}
 	b.ReportAllocs()
 }
+
+func BenchmarkExpression_Add(b *testing.B) {
+	ex := expression{}
+	for i := 0; i < b.N; i++ {
+		ex.Add("foo = ?", "one")
+	}
+	b.ReportAllocs()
+}

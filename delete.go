@@ -5,7 +5,7 @@ import "strings"
 // Delete query
 type Delete struct {
 	// with query
-	with sqlWith
+	with with
 	// from
 	from string
 	// using
@@ -78,6 +78,11 @@ func (d *Delete) GetReturningParams() []any {
 	return d.returning.Params()
 }
 
+// SQL Get sql query
+func (d *Delete) SQL() (query string, params []any, returning []any) {
+	return d.String(), append(d.with.Values(), d.where.GetArguments()...), d.GetReturningParams()
+}
+
 // String return result query
 func (d *Delete) String() string {
 	if d.IsEmpty() {
@@ -106,7 +111,7 @@ func (d *Delete) String() string {
 
 func NewDelete() *Delete {
 	return &Delete{
-		with: sqlWith{
+		with: with{
 			keys: make(map[int]string),
 		}}
 }

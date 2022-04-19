@@ -15,7 +15,7 @@ const (
 // Insert query builder
 type Insert struct {
 	// with query
-	with sqlWith
+	with with
 	// into table name
 	into string
 	// from insert
@@ -28,117 +28,6 @@ type Insert struct {
 	conflict conflict
 	// returning
 	returning expression
-}
-
-// On conflict query part
-type conflict struct {
-	// object of conflict
-	object string
-	// action on conflict
-	action string
-	// set of changes
-	set []string
-	// condition
-	condition Condition
-	// constraint
-	constraint string
-}
-
-// String conflict expression
-func (c *conflict) String() string {
-	if c.IsEmpty() {
-		return ""
-	}
-	b := strings.Builder{}
-	b.WriteString("ON CONFLICT")
-	if c.object != "" {
-		b.WriteString(" (" + c.object + ")")
-	}
-	if c.constraint != "" {
-		b.WriteString(" ON CONSTRAINT " + c.constraint)
-	}
-	if len(c.set) > 0 {
-		if c.action != "" {
-			b.WriteString(" DO " + c.action)
-		}
-		b.WriteString(" SET " + strings.Join(c.set, ","))
-		if !c.condition.IsEmpty() {
-			b.WriteString(" WHERE " + c.condition.String())
-		}
-	} else {
-		if !c.condition.IsEmpty() {
-			b.WriteString(" WHERE " + c.condition.String())
-		}
-		if c.action != "" {
-			b.WriteString(" DO " + c.action)
-		}
-	}
-	return b.String()
-}
-
-// IsEmpty Is conflict empty
-func (c *conflict) IsEmpty() bool {
-	return c.object == "" && c.action == "" && len(c.set) == 0 && c.condition.IsEmpty() && c.constraint == ""
-}
-
-// Object of conflict
-func (c *conflict) Object(object string) *conflict {
-	c.object = object
-	return c
-}
-
-// ResetObject reset
-func (c *conflict) ResetObject() *conflict {
-	c.object = ""
-	return c
-}
-
-// Action of conflict
-func (c *conflict) Action(action string) *conflict {
-	c.action = action
-	return c
-}
-
-// ResetAction reset action
-func (c *conflict) ResetAction() *conflict {
-	c.action = ""
-	return c
-}
-
-// Set of expressions on conflict
-func (c *conflict) Set(expr ...string) *conflict {
-	c.set = append(c.set, expr...)
-	return c
-}
-
-// ResetSet of expressions on conflict
-func (c *conflict) ResetSet() *conflict {
-	c.set = make([]string, 0)
-	return c
-}
-
-// Condition set conflict condition
-func (c *conflict) Condition(cond Condition) *conflict {
-	c.condition = cond
-	return c
-}
-
-// ResetCondition reset condition
-func (c *conflict) ResetCondition() *conflict {
-	c.condition = Condition{}
-	return c
-}
-
-// Constraint set constraint
-func (c *conflict) Constraint(constraint string) *conflict {
-	c.constraint = constraint
-	return c
-}
-
-// ResetConstraint reset constraint
-func (c *conflict) ResetConstraint() *conflict {
-	c.constraint = ""
-	return c
 }
 
 // Get sql insert query
@@ -196,9 +85,14 @@ func (i *Insert) IsEmpty() bool {
 		i.conflict.IsEmpty())
 }
 
-// SQL return query with params
-func (i *Insert) SQL() (query string, params []any) {
-	return i.String(), i.values
+// SQL Get sql query
+func (i *Insert) SQL() (query string, params []any, returning []any) {
+	return i.String(), i.GetArguments(), i.returning.Params()
+}
+
+// GetArguments get all arguments
+func (i *Insert) GetArguments() []any {
+	return append(append(i.with.Values(), i.values...), i.conflict.GetArguments()...)
 }
 
 // Conflict get conflict expression
@@ -312,7 +206,7 @@ func (i *Insert) WithValues() []any {
 // NewInsert new insert query builder
 func NewInsert() *Insert {
 	return &Insert{
-		with: sqlWith{
+		with: with{
 			keys: make(map[int]string),
 		},
 	}

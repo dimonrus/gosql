@@ -3,7 +3,7 @@ package gosql
 import "strings"
 
 // With SQL
-type sqlWith struct {
+type with struct {
 	// map of with names
 	keys map[int]string
 	// slice of queries
@@ -11,7 +11,7 @@ type sqlWith struct {
 }
 
 // Len of with queries
-func (w *sqlWith) Len() int {
+func (w *with) Len() int {
 	if w == nil {
 		return 0
 	}
@@ -19,7 +19,7 @@ func (w *sqlWith) Len() int {
 }
 
 // Get With
-func (w *sqlWith) Get(name string) *Select {
+func (w *with) Get(name string) *Select {
 	for j, key := range w.keys {
 		if key == name {
 			return w.queries[j]
@@ -29,7 +29,7 @@ func (w *sqlWith) Get(name string) *Select {
 }
 
 // Add With
-func (w *sqlWith) Add(name string, qb *Select) *sqlWith {
+func (w *with) Add(name string, qb *Select) *with {
 	if name != "" {
 		w.queries = append(w.queries, qb)
 		w.keys[len(w.queries)-1] = name
@@ -38,14 +38,14 @@ func (w *sqlWith) Add(name string, qb *Select) *sqlWith {
 }
 
 // Reset With query
-func (w *sqlWith) Reset() *sqlWith {
+func (w *with) Reset() *with {
 	w.queries = make([]*Select, 0)
 	w.keys = make(map[int]string, 0)
 	return w
 }
 
 // String for with
-func (w *sqlWith) String() string {
+func (w *with) String() string {
 	var b strings.Builder
 	if w.Len() > 0 {
 		b.WriteString("WITH ")
@@ -61,8 +61,9 @@ func (w *sqlWith) String() string {
 }
 
 // Values get values from all queries
-func (w *sqlWith) Values() []any {
+func (w *with) Values() []any {
 	var params []any
+	// order is important. map does not have order
 	if w.Len() > 0 {
 		for index := range w.queries {
 			params = append(params, w.queries[index].GetArguments()...)
