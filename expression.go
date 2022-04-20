@@ -74,3 +74,8 @@ func (e *expression) Params() []any {
 func (e *expression) Get(delimiter string) (string, []any) {
 	return e.String(delimiter), e.Params()
 }
+
+// NewExpression init expression
+func NewExpression() *expression {
+	return &expression{}
+}
