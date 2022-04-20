@@ -46,19 +46,18 @@ func (i *Insert) String() string {
 		b.WriteString(" " + strings.Join(i.from, ", "))
 	} else if len(i.values) > 0 {
 		b.WriteString(" VALUES ")
-		var k = 1
-		for j := 0; j <= len(i.values)-1; j++ {
+		for j := 1; j <= len(i.values); {
 			b.WriteString("(")
 			for u := 0; u < len(i.columns); u++ {
-				b.WriteString("$" + strconv.Itoa(k))
-				k++
+				b.WriteString("$" + strconv.Itoa(j))
+				j++
 				if u == len(i.columns)-1 {
 					break
 				}
 				b.WriteString(", ")
 			}
 			b.WriteString(")")
-			if j == len(i.values)-1 {
+			if j >= len(i.values) {
 				break
 			}
 			b.WriteString(", ")
@@ -130,14 +129,14 @@ func (i *Insert) ResetFrom() *Insert {
 }
 
 // AddValues Add row values
-func (i *Insert) AddValues(values []any) *Insert {
-	i.values = append(i.values, values)
+func (i *Insert) AddValues(values ...any) *Insert {
+	i.values = append(i.values, values...)
 	return i
 }
 
 // SetValues Set row values by index
-func (i *Insert) SetValues(index int, values []any) *Insert {
-	i.values[index] = values
+func (i *Insert) SetValues(index int, value any) *Insert {
+	i.values[index] = value
 	return i
 }
 
