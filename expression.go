@@ -45,13 +45,13 @@ func (e *expression) String(delimiter string) string {
 }
 
 // AddParams add params
-func (e *expression) AddParams(args ...any) *expression {
+func (e *expression) AddParams(args ...any) {
 	e.params = append(e.params, args...)
-	return e
+	return
 }
 
 // AddExpressions add expressions
-func (e *expression) AddExpressions(args ...string) *expression {
+func (e *expression) AddExpressions(args ...string) {
 	for _, arg := range args {
 		if e.Len() == 0 {
 			e.list.WriteString(arg)
@@ -59,7 +59,7 @@ func (e *expression) AddExpressions(args ...string) *expression {
 			e.list.WriteString(EnumDelimiter + arg)
 		}
 	}
-	return e
+	return
 }
 
 // Params return params
@@ -73,6 +73,11 @@ func (e *expression) Params() []any {
 // Get expressions
 func (e *expression) Get(delimiter string) (string, []any) {
 	return e.String(delimiter), e.Params()
+}
+
+// Split to slice of string
+func (e *expression) Split() []string {
+	return strings.SplitN(e.list.String(), EnumDelimiter, -1)
 }
 
 // NewExpression init expression
