@@ -117,3 +117,8 @@ func (c *conflict) ResetConstraint() *conflict {
 	c.constraint = ""
 	return c
 }
+
+// NewConflict conflict constructor
+func NewConflict() *conflict {
+	return &conflict{}
+}

@@ -94,9 +94,21 @@ func (i *Insert) GetArguments() []any {
 	return append(append(i.with.Values(), i.values...), i.conflict.GetArguments()...)
 }
 
+// SetConflict set conflict
+func (i *Insert) SetConflict(conflict conflict) *Insert {
+	i.conflict = conflict
+	return i
+}
+
 // Conflict get conflict expression
 func (i *Insert) Conflict() *conflict {
 	return &i.conflict
+}
+
+// ResetConflict reset conflict expression
+func (i *Insert) ResetConflict() *Insert {
+	i.conflict = conflict{}
+	return i
 }
 
 // AddReturning Add returning expression
