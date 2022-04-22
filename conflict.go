@@ -88,6 +88,18 @@ func (c *conflict) Set(expr ...string) *conflict {
 	return c
 }
 
+// Add expression on conflict
+func (c *conflict) Add(expr string, args ...any) *conflict {
+	c.set.Add(expr, args...)
+	return c
+}
+
+// AddArguments add expression arguments
+func (c *conflict) AddArguments(args ...any) *conflict {
+	c.set.AddParams(args...)
+	return c
+}
+
 // ResetSet of expressions on conflict
 func (c *conflict) ResetSet() *conflict {
 	c.set.Reset()
