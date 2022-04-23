@@ -1,7 +1,6 @@
 package gosql
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -49,7 +48,7 @@ func (i *Insert) String() string {
 		for j := 1; j <= len(i.values); {
 			b.WriteString("(")
 			for u := 0; u < len(i.columns); u++ {
-				b.WriteString("$" + strconv.Itoa(j))
+				b.WriteString("?")
 				j++
 				if u == len(i.columns)-1 {
 					break

@@ -14,7 +14,7 @@ func TestInsert_String(t *testing.T) {
 		i.AddValues("foo", 10, "2021-01-01T10:10:00Z")
 		i.AddValues("bar", 20, "2021-01-01T10:10:00Z")
 		t.Log(i.String())
-		if i.String() != "INSERT INTO user (name, entity_id, created_at) VALUES ($1, $2, $3), ($4, $5, $6) RETURNING id, created_at;" {
+		if i.String() != "INSERT INTO user (name, entity_id, created_at) VALUES (?, ?, ?), (?, ?, ?) RETURNING id, created_at;" {
 			t.Fatal("wrong build")
 		}
 	})
@@ -43,7 +43,7 @@ func TestInsert_String(t *testing.T) {
 		i.AddValues(6, "Associated Computing, Inc")
 		i.Conflict().Object("did").Action("UPDATE").Set("dname = EXCLUDED.dname")
 		t.Log(i.String())
-		if i.String() != "INSERT INTO distributors (did, dname) VALUES ($1, $2), ($3, $4) ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname;" {
+		if i.String() != "INSERT INTO distributors (did, dname) VALUES (?, ?), (?, ?) ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname;" {
 			t.Fatal("wrong conflict builder")
 		}
 	})
@@ -54,7 +54,7 @@ func TestInsert_String(t *testing.T) {
 		i.AddValues(7, "Redline GmbH")
 		i.Conflict().Object("did").Action("NOTHING")
 		t.Log(i.String())
-		if i.String() != "INSERT INTO distributors (did, dname) VALUES ($1, $2) ON CONFLICT (did) DO NOTHING;" {
+		if i.String() != "INSERT INTO distributors (did, dname) VALUES (?, ?) ON CONFLICT (did) DO NOTHING;" {
 			t.Fatal("wrong nothing_on_conflict")
 		}
 	})
@@ -69,7 +69,7 @@ func TestInsert_String(t *testing.T) {
 		cond.AddExpression("d.zipcode <> '21201'")
 		i.Conflict().Condition(*cond)
 		t.Log(i.String())
-		if i.String() != "INSERT INTO distributors AS d (did, dname) VALUES ($1, $2) ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname || ' (formerly ' || d.dname || ')' WHERE (d.zipcode <> '21201');" {
+		if i.String() != "INSERT INTO distributors AS d (did, dname) VALUES (?, ?) ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname || ' (formerly ' || d.dname || ')' WHERE (d.zipcode <> '21201');" {
 			t.Fatal("wrong on_conflict_set_with_condition")
 		}
 	})
@@ -80,7 +80,7 @@ func TestInsert_String(t *testing.T) {
 		i.AddValues(9, "Antwerp Design")
 		i.Conflict().Constraint("distributors_pkey").Action("NOTHING")
 		t.Log(i.String())
-		if i.String() != "INSERT INTO distributors (did, dname) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT distributors_pkey DO NOTHING;" {
+		if i.String() != "INSERT INTO distributors (did, dname) VALUES (?, ?) ON CONFLICT ON CONSTRAINT distributors_pkey DO NOTHING;" {
 			t.Fatal("wrong on_conflict_constraint")
 		}
 	})
@@ -94,7 +94,7 @@ func TestInsert_String(t *testing.T) {
 		cond.AddExpression("is_active")
 		i.Conflict().Condition(*cond)
 		t.Log(i.String())
-		if i.String() != "INSERT INTO distributors (did, dname) VALUES ($1, $2) ON CONFLICT (did) WHERE (is_active) DO NOTHING;" {
+		if i.String() != "INSERT INTO distributors (did, dname) VALUES (?, ?) ON CONFLICT (did) WHERE (is_active) DO NOTHING;" {
 			t.Fatal("wrong on_conflict_constraint")
 		}
 	})
@@ -105,7 +105,7 @@ func TestInsert_String(t *testing.T) {
 		i.AddValues(1, "XYZ Widgets")
 		i.AddReturning("did")
 		t.Log(i.String())
-		if i.String() != "INSERT INTO distributors (did, dname) VALUES ($1, $2) RETURNING did;" {
+		if i.String() != "INSERT INTO distributors (did, dname) VALUES (?, ?) RETURNING did;" {
 			t.Fatal("wrong on_conflict_constraint")
 		}
 	})
