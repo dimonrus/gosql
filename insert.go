@@ -110,21 +110,9 @@ func (i *Insert) ResetConflict() *Insert {
 	return i
 }
 
-// AddReturning Add returning expression
-func (i *Insert) AddReturning(returning string, args ...any) *Insert {
-	i.returning.Add(returning, args...)
-	return i
-}
-
-// ResetReturning Reset returning expressions
-func (i *Insert) ResetReturning() *Insert {
-	i.returning.Reset()
-	return i
-}
-
-// GetReturningParams Get returning params
-func (i *Insert) GetReturningParams() []any {
-	return i.returning.Params()
+// Returning Get returning expression
+func (i *Insert) Returning() *expression {
+	return &i.returning
 }
 
 // From insert from
@@ -191,26 +179,9 @@ func (i *Insert) ResetColumns() *Insert {
 	return i
 }
 
-// GetWith Get with query
-func (i *Insert) GetWith(name string) *Select {
-	return i.with.Get(name)
-}
-
-// With add with query
-func (i *Insert) With(name string, qb *Select) *Insert {
-	i.with.Add(name, qb)
-	return i
-}
-
-// ResetWith Reset With query
-func (i *Insert) ResetWith() *Insert {
-	i.with.Reset()
-	return i
-}
-
-// WithValues get with values
-func (i *Insert) WithValues() []any {
-	return i.with.Values()
+// With Get with query
+func (i *Insert) With() *with {
+	return &i.with
 }
 
 // NewInsert new insert query builder

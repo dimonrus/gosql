@@ -11,7 +11,7 @@ type conflict struct {
 	// set of changes
 	set expression
 	// condition
-	condition Condition
+	where Condition
 	// constraint
 	constraint string
 }
@@ -34,12 +34,12 @@ func (c *conflict) String() string {
 			b.WriteString(" DO " + c.action)
 		}
 		b.WriteString(" SET " + c.set.String(", "))
-		if !c.condition.IsEmpty() {
-			b.WriteString(" WHERE " + c.condition.String())
+		if !c.where.IsEmpty() {
+			b.WriteString(" WHERE " + c.where.String())
 		}
 	} else {
-		if !c.condition.IsEmpty() {
-			b.WriteString(" WHERE " + c.condition.String())
+		if !c.where.IsEmpty() {
+			b.WriteString(" WHERE " + c.where.String())
 		}
 		if c.action != "" {
 			b.WriteString(" DO " + c.action)
@@ -50,12 +50,12 @@ func (c *conflict) String() string {
 
 // GetArguments get all arguments
 func (c *conflict) GetArguments() []any {
-	return append(c.set.Params(), c.condition.GetArguments()...)
+	return append(c.set.Params(), c.where.GetArguments()...)
 }
 
 // IsEmpty Is conflict empty
 func (c *conflict) IsEmpty() bool {
-	return c.object == "" && c.action == "" && c.set.Len() == 0 && c.condition.IsEmpty() && c.constraint == ""
+	return c.object == "" && c.action == "" && c.set.Len() == 0 && c.where.IsEmpty() && c.constraint == ""
 }
 
 // Object of conflict
@@ -106,16 +106,9 @@ func (c *conflict) ResetSet() *conflict {
 	return c
 }
 
-// Condition set conflict condition
-func (c *conflict) Condition(cond Condition) *conflict {
-	c.condition = cond
-	return c
-}
-
-// ResetCondition reset condition
-func (c *conflict) ResetCondition() *conflict {
-	c.condition = Condition{}
-	return c
+// Where get condition
+func (c *conflict) Where() *Condition {
+	return &c.where
 }
 
 // Constraint set constraint
@@ -132,5 +125,7 @@ func (c *conflict) ResetConstraint() *conflict {
 
 // NewConflict conflict constructor
 func NewConflict() *conflict {
-	return &conflict{}
+	return &conflict{
+		where: Condition{operator: ConditionOperatorAnd},
+	}
 }

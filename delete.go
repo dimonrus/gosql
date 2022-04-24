@@ -49,38 +49,24 @@ func (d *Delete) ResetUsing() *Delete {
 	return d
 }
 
-// Condition set condition
-func (d *Delete) Condition(cond Condition) *Delete {
-	d.where = cond
-	return d
+// Where set condition
+func (d *Delete) Where() *Condition {
+	return &d.where
 }
 
-// ResetCondition reset condition
-func (d *Delete) ResetCondition() *Delete {
-	d.where = Condition{}
-	return d
+// Returning Add returning expression
+func (d *Delete) Returning() *expression {
+	return &d.returning
 }
 
-// AddReturning Add returning expression
-func (d *Delete) AddReturning(returning string, args ...any) *Delete {
-	d.returning.Add(returning, args...)
-	return d
-}
-
-// ResetReturning Reset returning expressions
-func (d *Delete) ResetReturning() *Delete {
-	d.returning.Reset()
-	return d
-}
-
-// GetReturningParams Get returning params
-func (d *Delete) GetReturningParams() []any {
-	return d.returning.Params()
+// GetGetArguments get all values
+func (d *Delete) GetGetArguments() []any {
+	return append(append(d.with.Values(), d.where.GetArguments()...))
 }
 
 // SQL Get sql query
 func (d *Delete) SQL() (query string, params []any, returning []any) {
-	return d.String(), append(d.with.Values(), d.where.GetArguments()...), d.GetReturningParams()
+	return d.String(), d.GetGetArguments(), d.returning.Params()
 }
 
 // String return result query
@@ -111,6 +97,7 @@ func (d *Delete) String() string {
 
 func NewDelete() *Delete {
 	return &Delete{
+		where: Condition{operator: ConditionOperatorAnd},
 		with: with{
 			keys: make(map[int]string),
 		}}

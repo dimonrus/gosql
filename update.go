@@ -15,7 +15,7 @@ type Update struct {
 	// from source
 	from []string
 	// condition
-	condition Condition
+	where Condition
 	// returning
 	returning expression
 }
@@ -25,7 +25,7 @@ func (u *Update) IsEmpty() bool {
 	return u == nil || (u.with.Len() == 0 &&
 		u.table == "" &&
 		len(u.from) == 0 &&
-		u.condition.IsEmpty() &&
+		u.where.IsEmpty() &&
 		len(u.set) == 0 &&
 		len(u.values) == 0 &&
 		u.returning.Len() == 0)
@@ -43,16 +43,9 @@ func (u *Update) ResetFrom() *Update {
 	return u
 }
 
-// Condition set conflict condition
-func (u *Update) Condition(cond Condition) *Update {
-	u.condition = cond
-	return u
-}
-
-// ResetCondition reset condition
-func (u *Update) ResetCondition() *Update {
-	u.condition = Condition{}
-	return u
+// Where set condition
+func (u *Update) Where() *Condition {
+	return &u.where
 }
 
 // String return result query
@@ -73,8 +66,8 @@ func (u *Update) String() string {
 	if len(u.from) != 0 {
 		b.WriteString(" FROM " + strings.Join(u.from, ", "))
 	}
-	if !u.condition.IsEmpty() {
-		b.WriteString(" WHERE " + u.condition.String())
+	if !u.where.IsEmpty() {
+		b.WriteString(" WHERE " + u.where.String())
 	}
 	if u.returning.Len() > 0 {
 		b.WriteString(" RETURNING " + u.returning.String(", "))
@@ -112,21 +105,14 @@ func (u *Update) ResetTable() *Update {
 	return u
 }
 
-// AddReturning Add returning expression
-func (u *Update) AddReturning(returning string, args ...any) *Update {
-	u.returning.Add(returning, args...)
-	return u
+// GetGetArguments get all values
+func (u *Update) GetGetArguments() []any {
+	return append(append(u.with.Values(), u.values...), u.where.GetArguments()...)
 }
 
-// ResetReturning Reset returning expressions
-func (u *Update) ResetReturning() *Update {
-	u.returning.Reset()
-	return u
-}
-
-// GetReturningParams Get returning params
-func (u *Update) GetReturningParams() []any {
-	return u.returning.Params()
+// Returning get returning expression
+func (u *Update) Returning() *expression {
+	return &u.returning
 }
 
 // Set expression
@@ -143,36 +129,20 @@ func (u *Update) UnSetAll() *Update {
 	return u
 }
 
-// GetWith Get with query
-func (u *Update) GetWith(name string) *Select {
-	return u.with.Get(name)
-}
-
 // With Add with query
-func (u *Update) With(name string, s *Select) *Update {
-	u.with.Add(name, s)
-	return u
-}
-
-// WithValues get with values
-func (u *Update) WithValues() []any {
-	return u.with.Values()
-}
-
-// ResetWith Reset With query
-func (u *Update) ResetWith() *Update {
-	u.with.Reset()
-	return u
+func (u *Update) With() *with {
+	return &u.with
 }
 
 // SQL Get sql query
 func (u *Update) SQL() (query string, params []any, returning []any) {
-	return u.String(), append(append(u.with.Values(), u.values...), u.condition.GetArguments()...), u.returning.Params()
+	return u.String(), append(append(u.with.Values(), u.values...), u.where.GetArguments()...), u.returning.Params()
 }
 
 // NewUpdate Update Query Builder
 func NewUpdate() *Update {
 	return &Update{
+		where: Condition{operator: ConditionOperatorAnd},
 		with: with{
 			keys: make(map[int]string),
 		},

@@ -6,11 +6,9 @@ func TestDelete_String(t *testing.T) {
 	t.Run("simple", func(t *testing.T) {
 		d := NewDelete()
 		d.From("films")
-		cond := NewSqlCondition(ConditionOperatorAnd)
-		cond.AddExpression("kind <> ?", "Musical")
-		d.Condition(*cond)
+		d.Where().AddExpression("kind <> ?", "Musical")
 		t.Log(d.String())
-		if d.String() != "DELETE FROM films WHERE (kind <> ?);" || len(cond.GetArguments()) != 1 {
+		if d.String() != "DELETE FROM films WHERE (kind <> ?);" || len(d.Where().GetArguments()) != 1 {
 			t.Fatal("wrong simple")
 		}
 	})
@@ -25,13 +23,11 @@ func TestDelete_String(t *testing.T) {
 	})
 
 	t.Run("simple_2", func(t *testing.T) {
-		cond := NewSqlCondition(ConditionOperatorAnd)
-		cond.AddExpression("status = ?", "DONE")
 		d := NewDelete()
-		d.From("tasks").AddReturning("*")
-		d.Condition(*cond)
+		d.From("tasks").Returning().AddExpressions("*")
+		d.Where().AddExpression("status = ?", "DONE")
 		t.Log(d.String())
-		if d.String() != "DELETE FROM tasks WHERE (status = ?) RETURNING *;" || len(cond.GetArguments()) != 1 {
+		if d.String() != "DELETE FROM tasks WHERE (status = ?) RETURNING *;" || len(d.Where().GetArguments()) != 1 {
 			t.Fatal("wrong simple_2")
 		}
 	})
@@ -43,13 +39,11 @@ func TestDelete_String(t *testing.T) {
 		sub.Where().AddExpression("name = ?", "foo")
 		sub.SubQuery = true
 
-		cond := NewSqlCondition(ConditionOperatorAnd)
-		cond.AddExpression("producer_id IN "+sub.String(), sub.GetArguments()...)
 		d := NewDelete()
 		d.From("tasks")
-		d.Condition(*cond)
+		d.Where().AddExpression("producer_id IN "+sub.String(), sub.GetArguments()...)
 		t.Log(d.String())
-		if d.String() != "DELETE FROM tasks WHERE (producer_id IN (SELECT id FROM producers WHERE (name = ?)));" || len(cond.GetArguments()) != 1 {
+		if d.String() != "DELETE FROM tasks WHERE (producer_id IN (SELECT id FROM producers WHERE (name = ?)));" || len(d.Where().GetArguments()) != 1 {
 			t.Fatal("wrong simple_2")
 		}
 	})

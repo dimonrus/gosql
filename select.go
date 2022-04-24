@@ -49,24 +49,12 @@ func (q *Select) SQL() (query string, params []any, returning []any) {
 	return q.String(), q.GetArguments(), nil
 }
 
-// Add With
-func (q *Select) With(name string, s *Select) *Select {
-	q.with.Add(name, s)
-	return q
+// With get with queries
+func (q *Select) With() *with {
+	return &q.with
 }
 
-// GetWith Get With query
-func (q *Select) GetWith(name string) *Select {
-	return q.with.Get(name)
-}
-
-// Reset With
-func (q *Select) ResetWith() *Select {
-	q.with.Reset()
-	return q
-}
-
-// Union
+// Union add union
 func (q *Select) Union(s *Select) *Select {
 	if s != nil {
 		q.union = append(q.union, s)
@@ -74,7 +62,7 @@ func (q *Select) Union(s *Select) *Select {
 	return q
 }
 
-// Except
+// Except query
 func (q *Select) Except(s *Select) *Select {
 	if s != nil {
 		q.except = append(q.except, s)
@@ -82,7 +70,7 @@ func (q *Select) Except(s *Select) *Select {
 	return q
 }
 
-// Intersect
+// Intersect query
 func (q *Select) Intersect(s *Select) *Select {
 	if s != nil {
 		q.intersect = append(q.intersect, s)
@@ -90,19 +78,19 @@ func (q *Select) Intersect(s *Select) *Select {
 	return q
 }
 
-// Reset Intersect
+// ResetIntersect reset intersect
 func (q *Select) ResetIntersect() *Select {
 	q.intersect = make([]*Select, 0)
 	return q
 }
 
-// Reset Union
+// ResetUnion reset union
 func (q *Select) ResetUnion() *Select {
 	q.union = make([]*Select, 0)
 	return q
 }
 
-// Reset Except
+// ResetExcept reset except
 func (q *Select) ResetExcept() *Select {
 	q.except = make([]*Select, 0)
 	return q

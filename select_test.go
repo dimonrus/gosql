@@ -20,8 +20,9 @@ func TestQB_String(t *testing.T) {
 	c.SetPagination(5, 0)
 
 	qb := NewSelect()
-	qb.With("mv_right_items", mr)
-	qb.With("mv_contracts_items", c)
+	qb.With().
+		Add("mv_right_items", mr).
+		Add("mv_contracts_items", c)
 	qb.From("mv_object mo")
 	qb.Columns("mo.id", "mo.title", "mo.rightholder_ids", "mr.id", "mr.contract_id")
 	qb.Relate("JOIN mv_right_items AS mr ON mr.object_id = mo.id")
@@ -96,7 +97,7 @@ func TestQB_Intersect(t *testing.T) {
 	u1.SubQuery = true
 	q.Union(u1)
 
-	m.With("some", q)
+	m.With().Add("some", q)
 	fmt.Println(m.String())
 }
 
