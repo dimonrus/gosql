@@ -4,8 +4,8 @@ import "testing"
 
 func TestExpression(t *testing.T) {
 	ex := expression{}
-	ex.Add("foo = ?", 1)
-	ex.Add("bar = ?", "simple")
+	ex.Append("foo = ?", 1)
+	ex.Append("bar = ?", "simple")
 	if s, p := ex.Get(", "); s != "foo = ?, bar = ?" || len(p) != 2 {
 		t.Fatal("wrong add logic")
 	}
@@ -20,7 +20,7 @@ func TestExpression(t *testing.T) {
 	if exp.String("|") != "" {
 		t.Fatal("wrong string")
 	}
-	if exp.Params() != nil {
+	if exp.GetArguments() != nil {
 		t.Fatal("wrong params")
 	}
 	exp.Reset()
@@ -28,8 +28,8 @@ func TestExpression(t *testing.T) {
 
 func BenchmarkExpression_Get(b *testing.B) {
 	ex := expression{}
-	ex.Add("foo = ?", 1)
-	ex.Add("foo = ?", "one")
+	ex.Append("foo = ?", 1)
+	ex.Append("foo = ?", "one")
 	for i := 0; i < b.N; i++ {
 		_, _ = ex.Get(", ")
 	}
@@ -39,7 +39,7 @@ func BenchmarkExpression_Get(b *testing.B) {
 func BenchmarkExpression_Add(b *testing.B) {
 	ex := expression{}
 	for i := 0; i < b.N; i++ {
-		ex.Add("foo = ?", "one")
+		ex.Append("foo = ?", "one")
 	}
 	b.ReportAllocs()
 }

@@ -13,13 +13,13 @@ type expression struct {
 	params []any
 }
 
-// Add expressions
-func (e *expression) Add(expr string, args ...any) {
-	e.AddExpressions(expr)
-	e.AddParams(args...)
+// Append expressions
+func (e *expression) Append(expr string, args ...any) {
+	e.Add(expr)
+	e.Arg(args...)
 }
 
-// Len len of expressions
+// Len of expressions
 func (e *expression) Len() int {
 	if e == nil {
 		return 0
@@ -44,15 +44,15 @@ func (e *expression) String(delimiter string) string {
 	return strings.ReplaceAll(e.list.String(), EnumDelimiter, delimiter)
 }
 
-// AddParams add params
-func (e *expression) AddParams(args ...any) {
+// Arg add params
+func (e *expression) Arg(args ...any) {
 	e.params = append(e.params, args...)
 	return
 }
 
-// AddExpressions add expressions
-func (e *expression) AddExpressions(args ...string) {
-	for _, arg := range args {
+// Add expression items
+func (e *expression) Add(item ...string) {
+	for _, arg := range item {
 		if e.Len() == 0 {
 			e.list.WriteString(arg)
 		} else {
@@ -62,8 +62,8 @@ func (e *expression) AddExpressions(args ...string) {
 	return
 }
 
-// Params return params
-func (e *expression) Params() []any {
+// GetArguments return params
+func (e *expression) GetArguments() []any {
 	if e == nil {
 		return nil
 	}
@@ -72,7 +72,7 @@ func (e *expression) Params() []any {
 
 // Get expressions
 func (e *expression) Get(delimiter string) (string, []any) {
-	return e.String(delimiter), e.Params()
+	return e.String(delimiter), e.GetArguments()
 }
 
 // Split to slice of string

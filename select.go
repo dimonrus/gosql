@@ -19,7 +19,7 @@ type Select struct {
 	// with queries
 	with with
 	// columns
-	columns []string
+	columns expression
 	// form rows
 	from []string
 	// join relations
@@ -96,19 +96,12 @@ func (q *Select) ResetExcept() *Select {
 	return q
 }
 
-// Add column
-func (q *Select) Columns(column ...string) *Select {
-	q.columns = append(q.columns, column...)
-	return q
+// Append column
+func (q *Select) Columns() *expression {
+	return &q.columns
 }
 
-// Reset column
-func (q *Select) ResetColumns() *Select {
-	q.columns = []string{}
-	return q
-}
-
-// Add from
+// Append from
 func (q *Select) From(table ...string) *Select {
 	q.from = append(q.from, table...)
 	return q
@@ -120,7 +113,7 @@ func (q *Select) ResetFrom() *Select {
 	return q
 }
 
-// Add join
+// Append join
 func (q *Select) Relate(relation ...string) *Select {
 	q.join = append(q.join, relation...)
 	return q
@@ -142,7 +135,7 @@ func (q *Select) Having() *Condition {
 	return &q.having
 }
 
-// Add Order
+// Append Order
 func (q *Select) AddOrder(expression ...string) *Select {
 	q.orders = append(q.orders, expression...)
 	return q
@@ -154,7 +147,7 @@ func (q *Select) ResetOrder() *Select {
 	return q
 }
 
-// Add Group
+// Append Group
 func (q *Select) GroupBy(fields ...string) *Select {
 	q.group = append(q.group, fields...)
 	return q
@@ -213,8 +206,8 @@ func (q *Select) String() string {
 	}
 
 	// Select columns
-	if len(q.columns) > 0 {
-		b.WriteString("SELECT " + strings.Join(q.columns, ", "))
+	if q.columns.Len() > 0 {
+		b.WriteString("SELECT " + q.columns.String(", "))
 	}
 
 	// From table

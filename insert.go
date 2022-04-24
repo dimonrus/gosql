@@ -85,7 +85,7 @@ func (i *Insert) IsEmpty() bool {
 
 // SQL Get sql query
 func (i *Insert) SQL() (query string, params []any, returning []any) {
-	return i.String(), i.GetArguments(), i.returning.Params()
+	return i.String(), i.GetArguments(), i.returning.GetArguments()
 }
 
 // GetArguments get all arguments
@@ -127,7 +127,7 @@ func (i *Insert) ResetFrom() *Insert {
 	return i
 }
 
-// AddValues Add row values
+// AddValues Append row values
 func (i *Insert) AddValues(values ...any) *Insert {
 	i.values = append(i.values, values...)
 	return i

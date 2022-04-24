@@ -8,7 +8,7 @@ func TestConflict_String(t *testing.T) {
 		con.Object("id,name")
 		con.Constraint("distributors_pkey")
 		con.Action("UPDATE")
-		con.Set("created_at = now()", "id = 1")
+		con.Set().Add("created_at = now()", "id = 1")
 		con.Where().AddExpression("id = ?", 10)
 		if con.String() != "ON CONFLICT (id,name) ON CONSTRAINT distributors_pkey DO UPDATE SET created_at = now(), id = 1 WHERE (id = ?)" {
 			t.Fatal("wrong conflict expression")

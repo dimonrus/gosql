@@ -129,14 +129,14 @@ func (u *Update) UnSetAll() *Update {
 	return u
 }
 
-// With Add with query
+// With Append with query
 func (u *Update) With() *with {
 	return &u.with
 }
 
 // SQL Get sql query
 func (u *Update) SQL() (query string, params []any, returning []any) {
-	return u.String(), append(append(u.with.Values(), u.values...), u.where.GetArguments()...), u.returning.Params()
+	return u.String(), append(append(u.with.Values(), u.values...), u.where.GetArguments()...), u.returning.GetArguments()
 }
 
 // NewUpdate Update Query Builder

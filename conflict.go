@@ -50,7 +50,7 @@ func (c *conflict) String() string {
 
 // GetArguments get all arguments
 func (c *conflict) GetArguments() []any {
-	return append(c.set.Params(), c.where.GetArguments()...)
+	return append(c.set.GetArguments(), c.where.GetArguments()...)
 }
 
 // IsEmpty Is conflict empty
@@ -83,27 +83,8 @@ func (c *conflict) ResetAction() *conflict {
 }
 
 // Set of expressions on conflict
-func (c *conflict) Set(expr ...string) *conflict {
-	c.set.AddExpressions(expr...)
-	return c
-}
-
-// Add expression on conflict
-func (c *conflict) Add(expr string, args ...any) *conflict {
-	c.set.Add(expr, args...)
-	return c
-}
-
-// AddArguments add expression arguments
-func (c *conflict) AddArguments(args ...any) *conflict {
-	c.set.AddParams(args...)
-	return c
-}
-
-// ResetSet of expressions on conflict
-func (c *conflict) ResetSet() *conflict {
-	c.set.Reset()
-	return c
+func (c *conflict) Set() *expression {
+	return &c.set
 }
 
 // Where get condition

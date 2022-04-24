@@ -37,7 +37,7 @@ func TestUpdate_String(t *testing.T) {
 			Set("temp_lo = temp_lo+1").
 			Set("temp_hi = temp_lo+15").
 			Set("prcp = DEFAULT")
-		u.Returning().AddExpressions("temp_lo", "temp_hi", "prcp")
+		u.Returning().Add("temp_lo", "temp_hi", "prcp")
 		u.Where().
 			AddExpression("city = ?", "San Francisco").
 			AddExpression("date = ?", "2003-07-03")
@@ -77,7 +77,7 @@ func TestUpdate_String(t *testing.T) {
 	t.Run("complex_where", func(t *testing.T) {
 		sub := NewSelect()
 		sub.From("accounts")
-		sub.Columns("sales_person")
+		sub.Columns().Add("sales_person")
 		sub.Where().AddExpression("name = ?", "Acme Corporation")
 		sub.SubQuery = true
 
@@ -94,7 +94,7 @@ func TestUpdate_String(t *testing.T) {
 	t.Run("complex_where_1", func(t *testing.T) {
 		sub := NewSelect()
 		sub.From("salesmen")
-		sub.Columns("first_name", "last_name")
+		sub.Columns().Add("first_name", "last_name")
 		sub.Where().AddExpression("salesmen.id = accounts.sales_id")
 		sub.SubQuery = true
 
@@ -126,7 +126,7 @@ func TestUpdate_String(t *testing.T) {
 	t.Run("agg", func(t *testing.T) {
 		sub := NewSelect()
 		sub.From("data d")
-		sub.Columns("sum(x)", "sum(y)", "avg(x)", "avg(y)")
+		sub.Columns().Add("sum(x)", "sum(y)", "avg(x)", "avg(y)")
 		sub.Where().AddExpression("d.group_id = s.group_id")
 		sub.SubQuery = true
 

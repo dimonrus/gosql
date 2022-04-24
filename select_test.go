@@ -8,14 +8,14 @@ import (
 func TestQB_String(t *testing.T) {
 	mr := NewSelect()
 	mr.From("mv_right")
-	mr.Columns("id", "contract_id", "object_id")
+	mr.Columns().Add("id", "contract_id", "object_id")
 	mr.Where().AddExpression("object_id = ?", "84f3ba22-5b7f-4967-80e2-451a123deff6")
 	mr.AddOrder("terrirtory_name")
 	mr.SetPagination(10, 0)
 
 	c := NewSelect()
 	c.From("mv_contracts")
-	c.Columns("id", "contract_name")
+	c.Columns().Add("id", "contract_name")
 	c.Where().AddExpression("contract_sum > ?", 23.45)
 	c.SetPagination(5, 0)
 
@@ -24,7 +24,7 @@ func TestQB_String(t *testing.T) {
 		Add("mv_right_items", mr).
 		Add("mv_contracts_items", c)
 	qb.From("mv_object mo")
-	qb.Columns("mo.id", "mo.title", "mo.rightholder_ids", "mr.id", "mr.contract_id")
+	qb.Columns().Add("mo.id", "mo.title", "mo.rightholder_ids", "mr.id", "mr.contract_id")
 	qb.Relate("JOIN mv_right_items AS mr ON mr.object_id = mo.id")
 	qb.Relate("LEFT JOIN mv_contracts_items AS ci ON ci.id = mr.contract_id")
 	qb.Where().AddExpression("mr.object_id IS NOT NULL")
@@ -59,15 +59,15 @@ func TestCondition_IsEmpty(t *testing.T) {
 
 func TestQB_Union(t *testing.T) {
 	q := NewSelect()
-	q.Columns("*")
+	q.Columns().Add("*")
 	q.From("some_table")
 
 	u1 := NewSelect()
-	u1.Columns("*")
+	u1.Columns().Add("*")
 	u1.From("some_table_union_1")
 
 	u2 := NewSelect()
-	u2.Columns("*")
+	u2.Columns().Add("*")
 	u2.From("some_table_union_2")
 
 	q.Union(u1)
@@ -78,19 +78,19 @@ func TestQB_Union(t *testing.T) {
 
 func TestQB_Intersect(t *testing.T) {
 	m := NewSelect()
-	m.Columns("*")
+	m.Columns().Add("*")
 	m.From("main_table")
 
 	q := NewSelect()
-	q.Columns("*")
+	q.Columns().Add("*")
 	q.From("some_table")
 
 	u1 := NewSelect()
-	u1.Columns("*")
+	u1.Columns().Add("*")
 	u1.From("some_table_union_1")
 
 	u2 := NewSelect()
-	u2.Columns("*")
+	u2.Columns().Add("*")
 	u2.From("some_table_union_2")
 
 	u1.Intersect(u2)
@@ -103,15 +103,15 @@ func TestQB_Intersect(t *testing.T) {
 
 func TestQB_Except(t *testing.T) {
 	q := NewSelect()
-	q.Columns("*")
+	q.Columns().Add("*")
 	q.From("some_table")
 
 	u1 := NewSelect()
-	u1.Columns("*")
+	u1.Columns().Add("*")
 	u1.From("some_table_union_1")
 
 	u2 := NewSelect()
-	u2.Columns("*")
+	u2.Columns().Add("*")
 	u2.From("some_table_except_2")
 
 	q.Union(u1)

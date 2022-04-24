@@ -24,7 +24,7 @@ func TestDelete_String(t *testing.T) {
 
 	t.Run("simple_2", func(t *testing.T) {
 		d := NewDelete()
-		d.From("tasks").Returning().AddExpressions("*")
+		d.From("tasks").Returning().Add("*")
 		d.Where().AddExpression("status = ?", "DONE")
 		t.Log(d.String())
 		if d.String() != "DELETE FROM tasks WHERE (status = ?) RETURNING *;" || len(d.Where().GetArguments()) != 1 {
@@ -34,7 +34,7 @@ func TestDelete_String(t *testing.T) {
 
 	t.Run("current", func(t *testing.T) {
 		sub := NewSelect()
-		sub.Columns("id")
+		sub.Columns().Add("id")
 		sub.From("producers")
 		sub.Where().AddExpression("name = ?", "foo")
 		sub.SubQuery = true

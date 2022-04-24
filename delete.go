@@ -54,7 +54,7 @@ func (d *Delete) Where() *Condition {
 	return &d.where
 }
 
-// Returning Add returning expression
+// Returning Append returning expression
 func (d *Delete) Returning() *expression {
 	return &d.returning
 }
@@ -66,7 +66,7 @@ func (d *Delete) GetGetArguments() []any {
 
 // SQL Get sql query
 func (d *Delete) SQL() (query string, params []any, returning []any) {
-	return d.String(), d.GetGetArguments(), d.returning.Params()
+	return d.String(), d.GetGetArguments(), d.returning.GetArguments()
 }
 
 // String return result query
