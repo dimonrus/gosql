@@ -61,7 +61,7 @@ func (d *Delete) Returning() *expression {
 
 // GetGetArguments get all values
 func (d *Delete) GetGetArguments() []any {
-	return append(append(d.with.Values(), d.where.GetArguments()...))
+	return append(append(d.with.GetArguments(), d.where.GetArguments()...))
 }
 
 // SQL Get sql query

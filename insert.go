@@ -20,9 +20,7 @@ type Insert struct {
 	// from insert
 	from []string
 	// list of columns
-	columns []string
-	// list of values
-	values []any
+	columns expression
 	// conflict expression
 	conflict conflict
 	// returning
@@ -38,25 +36,26 @@ func (i *Insert) String() string {
 	if i.into != "" {
 		b.WriteString("INSERT INTO " + i.into)
 	}
-	if len(i.columns) > 0 {
-		b.WriteString(" (" + strings.Join(i.columns, ", ") + ")")
+	if i.columns.Len() > 0 {
+		b.WriteString(" (" + i.columns.String(", ") + ")")
 	}
 	if len(i.from) > 0 {
 		b.WriteString(" " + strings.Join(i.from, ", "))
-	} else if len(i.values) > 0 {
+	} else if i.columns.ArgLen() > 0 {
 		b.WriteString(" VALUES ")
-		for j := 1; j <= len(i.values); {
+		cols := len(i.columns.Split())
+		for j := 1; j <= i.columns.ArgLen(); {
 			b.WriteString("(")
-			for u := 0; u < len(i.columns); u++ {
+			for u := 0; u < cols; u++ {
 				b.WriteString("?")
 				j++
-				if u == len(i.columns)-1 {
+				if u == cols-1 {
 					break
 				}
 				b.WriteString(", ")
 			}
 			b.WriteString(")")
-			if j >= len(i.values) {
+			if j >= i.columns.ArgLen() {
 				break
 			}
 			b.WriteString(", ")
@@ -77,8 +76,8 @@ func (i *Insert) IsEmpty() bool {
 	return i == nil || (i.with.Len() == 0 &&
 		i.into == "" &&
 		len(i.from) == 0 &&
-		len(i.columns) == 0 &&
-		len(i.values) == 0 &&
+		i.columns.Len() == 0 &&
+		i.columns.ArgLen() == 0 &&
 		i.returning.Len() == 0 &&
 		i.conflict.IsEmpty())
 }
@@ -90,7 +89,7 @@ func (i *Insert) SQL() (query string, params []any, returning []any) {
 
 // GetArguments get all arguments
 func (i *Insert) GetArguments() []any {
-	return append(append(i.with.Values(), i.values...), i.conflict.GetArguments()...)
+	return append(append(i.with.GetArguments(), i.columns.GetArguments()...), i.conflict.GetArguments()...)
 }
 
 // SetConflict set conflict
@@ -127,32 +126,9 @@ func (i *Insert) ResetFrom() *Insert {
 	return i
 }
 
-// AddValues Append row values
-func (i *Insert) AddValues(values ...any) *Insert {
-	i.values = append(i.values, values...)
-	return i
-}
-
-// SetValues Set row values by index
-func (i *Insert) SetValues(index int, value any) *Insert {
-	i.values[index] = value
-	return i
-}
-
-// ResetValues Reset all values
-func (i *Insert) ResetValues() *Insert {
-	i.values = make([]any, 0)
-	return i
-}
-
-// GetValues get values by indexes
-func (i *Insert) GetValues(start, end int) []any {
-	return i.values[start:end]
-}
-
-// GetAllValues get all values
-func (i *Insert) GetAllValues() []any {
-	return i.values
+// Columns get columns for insert
+func (i *Insert) Columns() *expression {
+	return &i.columns
 }
 
 // Into Set into value
@@ -164,18 +140,6 @@ func (i *Insert) Into(into string) *Insert {
 // ResetInto Set into empty string
 func (i *Insert) ResetInto() *Insert {
 	i.into = ""
-	return i
-}
-
-// Columns Set columns
-func (i *Insert) Columns(column ...string) *Insert {
-	i.columns = append(i.columns, column...)
-	return i
-}
-
-// ResetColumns reset columns
-func (i *Insert) ResetColumns() *Insert {
-	i.columns = make([]string, 0)
 	return i
 }
 

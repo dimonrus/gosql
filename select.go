@@ -46,7 +46,7 @@ type Select struct {
 
 // SQL Get sql query
 func (q *Select) SQL() (query string, params []any, returning []any) {
-	return q.String(), q.GetArguments(), nil
+	return q.String(), q.GetArguments(), q.Columns().GetArguments()
 }
 
 // With get with queries

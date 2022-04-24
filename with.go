@@ -60,8 +60,8 @@ func (w *with) String() string {
 	return b.String()
 }
 
-// Values get values from all queries
-func (w *with) Values() []any {
+// GetArguments get values from all queries
+func (w *with) GetArguments() []any {
 	var params []any
 	// order is important. map does not have order
 	if w.Len() > 0 {

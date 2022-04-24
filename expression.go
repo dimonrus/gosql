@@ -27,6 +27,14 @@ func (e *expression) Len() int {
 	return e.list.Len()
 }
 
+// ArgLen len of arguments
+func (e *expression) ArgLen() int {
+	if e == nil {
+		return 0
+	}
+	return len(e.params)
+}
+
 // Reset expressions
 func (e *expression) Reset() {
 	if e.Len() == 0 {

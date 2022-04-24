@@ -9,6 +9,9 @@ func TestExpression(t *testing.T) {
 	if s, p := ex.Get(", "); s != "foo = ?, bar = ?" || len(p) != 2 {
 		t.Fatal("wrong add logic")
 	}
+	if ex.ArgLen() != 2 {
+		t.Fatal("wrong arg len")
+	}
 	ex.Reset()
 	if s, p := ex.Get(", "); s != "" || len(p) != 0 || ex.Len() != 0 {
 		t.Fatal("wrong reset logic")
