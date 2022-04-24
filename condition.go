@@ -75,6 +75,12 @@ func (c *Condition) AddArgument(values ...interface{}) *Condition {
 	return c
 }
 
+// Replace current condition
+func (c *Condition) Replace(cond *Condition) *Condition {
+	*c = *cond
+	return c
+}
+
 // Merge with conditions
 func (c *Condition) Merge(operator string, conditions ...*Condition) *Condition {
 	if len(conditions) > 0 {

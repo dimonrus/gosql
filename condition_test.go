@@ -36,5 +36,18 @@ func TestConditions_AddExpression(t *testing.T) {
 
 	fmt.Println(c.String())
 	fmt.Println(c.GetArguments())
+}
 
+func TestCondition_Replace(t *testing.T) {
+	c := NewSqlCondition(ConditionOperatorAnd)
+	c.AddExpression("created_at BETWEEN ? AND ?", time.Now(), time.Now().Add(time.Minute))
+	c.AddExpression("is_active IS TRUE")
+	c.AddExpression("middle = ?", "center")
+	c2 := NewSqlCondition(ConditionOperatorAnd)
+	c2.AddExpression("is_active IS NOT TRUE")
+	c.Replace(c2)
+	t.Log(c.String())
+	if c.String() != "(is_active IS NOT TRUE)" {
+		t.Fatal("wrong replace")
+	}
 }
