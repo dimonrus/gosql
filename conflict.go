@@ -64,6 +64,11 @@ func (c *conflict) Object(object string) *conflict {
 	return c
 }
 
+// GetObject get conflict object
+func (c *conflict) GetObject() string {
+	return c.object
+}
+
 // ResetObject reset
 func (c *conflict) ResetObject() *conflict {
 	c.object = ""
@@ -74,6 +79,11 @@ func (c *conflict) ResetObject() *conflict {
 func (c *conflict) Action(action string) *conflict {
 	c.action = action
 	return c
+}
+
+// GetAction get action
+func (c *conflict) GetAction() string {
+	return c.action
 }
 
 // ResetAction reset action
@@ -96,6 +106,11 @@ func (c *conflict) Where() *Condition {
 func (c *conflict) Constraint(constraint string) *conflict {
 	c.constraint = constraint
 	return c
+}
+
+// GetConstraint get constraint
+func (c *conflict) GetConstraint() string {
+	return c.constraint
 }
 
 // ResetConstraint reset constraint
