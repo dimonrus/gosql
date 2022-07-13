@@ -29,6 +29,17 @@ const (
 	InitiallyDeferred = "DEFERRED"
 	// InitiallyImmediate IMMEDIATE
 	InitiallyImmediate = "IMMEDIATE"
+
+	// ActionNoAction NO ACTION
+	ActionNoAction = "NO ACTION"
+	// ActionCascade CASCADE
+	ActionCascade = "CASCADE"
+	// ActionRestrict RESTRICT
+	ActionRestrict = "RESTRICT"
+	// ActionSetNull SET NULL
+	ActionSetNull = "SET NULL"
+	// ActionSetDefault SET DEFAULT
+	ActionSetDefault = "SET DEFAULT"
 )
 
 // column query builder
@@ -115,15 +126,180 @@ type constraintColumn struct {
 	// generated
 	generated detailedExpression
 	// unique index
-	unique string
+	unique indexParameters
 	// primary key
-	primary string
+	primary indexParameters
 	// references
 	references referencesColumn
 	// deferrable
 	deferrable *bool
 	// initially
 	initially string
+}
+
+// SetName set name
+func (c *constraintColumn) SetName(name string) *constraintColumn {
+	c.name = name
+	return c
+}
+
+// GetName get name
+func (c *constraintColumn) GetName() string {
+	return c.name
+}
+
+// ResetName reset name
+func (c *constraintColumn) ResetName() *constraintColumn {
+	c.name = ""
+	return c
+}
+
+// Nullable is constraint nullable
+func (c *constraintColumn) Nullable(isNullable *bool) *constraintColumn {
+	c.nullable = isNullable
+	return c
+}
+
+// Check detailed expression
+func (c *constraintColumn) Check() *detailedExpression {
+	return &c.check
+}
+
+// SetDefault set default
+func (c *constraintColumn) SetDefault(def string) *constraintColumn {
+	c.def = def
+	return c
+}
+
+// GetDefault get default
+func (c *constraintColumn) GetDefault() string {
+	return c.def
+}
+
+// ResetDefault reset default
+func (c *constraintColumn) ResetDefault() *constraintColumn {
+	c.def = ""
+	return c
+}
+
+// GeneratedAlways expression
+func (c *constraintColumn) GeneratedAlways() *expression {
+	return &c.generatedAlwaysAs
+}
+
+// Generated expression
+func (c *constraintColumn) Generated() *detailedExpression {
+	return &c.generated
+}
+
+// Unique get unique
+func (c *constraintColumn) Unique() *indexParameters {
+	return &c.unique
+}
+
+// Primary get primary
+func (c *constraintColumn) Primary() *indexParameters {
+	return &c.primary
+}
+
+// References get references
+func (c *constraintColumn) References() *referencesColumn {
+	return &c.references
+}
+
+// SetDeferrable set deferrable
+func (c *constraintColumn) SetDeferrable(deferrable *bool) *constraintColumn {
+	c.deferrable = deferrable
+	return c
+}
+
+// SetInitially set initially
+func (c *constraintColumn) SetInitially(initially string) *constraintColumn {
+	c.initially = initially
+	return c
+}
+
+// GetInitially get initially
+func (c *constraintColumn) GetInitially() string {
+	return c.initially
+}
+
+// ResetInitially reset initially
+func (c *constraintColumn) ResetInitially() *constraintColumn {
+	c.initially = ""
+	return c
+}
+
+// String render column constraint
+func (c *constraintColumn) String() string {
+	// TODO render
+	return ""
+}
+
+// IsEmpty check if empty
+func (c *constraintColumn) IsEmpty() bool {
+	return c == nil || (c.name == "" &&
+		c.nullable == nil &&
+		c.check.IsEmpty() &&
+		c.def == "" &&
+		c.generatedAlwaysAs.Len() == 0 &&
+		c.generated.IsEmpty() &&
+		c.unique.IsEmpty() &&
+		c.primary.IsEmpty() &&
+		c.references.IsEmpty() &&
+		c.deferrable == nil &&
+		c.initially == "")
+}
+
+//[ CONSTRAINT constraint_name ]
+//{ NOT NULL |
+//  NULL |
+//  CHECK ( expression ) [ NO INHERIT ] |
+//  DEFAULT default_expr |
+//  GENERATED ALWAYS AS ( generation_expr ) STORED |
+//  GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ] |
+//  UNIQUE index_parameters |
+//  PRIMARY KEY index_parameters |
+//  REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ]
+//    [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
+//[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+
+//
+//[ INCLUDE ( column_name [, ... ] ) ]
+//[ WITH ( storage_parameter [ = value] [, ... ] ) ]
+//[ USING INDEX TABLESPACE tablespace_name ]
+
+// indexParameters parameters of index
+type indexParameters struct {
+	// include
+	include expression
+	// with
+	with expression
+	// using index tablespace
+	tableSpace string
+}
+
+// String render index parameters
+func (i *indexParameters) String() string {
+	if i.IsEmpty() {
+		return ""
+	}
+	b := strings.Builder{}
+	if i.include.Len() > 0 {
+		b.WriteString(" INCLUDE (" + i.include.String(", ") + ")")
+	}
+	if i.with.Len() > 0 {
+		b.WriteString(" WITH (" + i.with.String(", ") + ")")
+	}
+	if i.tableSpace != "" {
+		b.WriteString(" USING INDEX TABLESPACE " + i.tableSpace)
+	}
+	return b.String()
+}
+
+// IsEmpty is index parameter empty
+func (i *indexParameters) IsEmpty() bool {
+	return i == nil || (i.include.Len() == 0 && i.with.Len() > 0 && i.tableSpace == "")
 }
 
 // references column
@@ -248,16 +424,3 @@ func (r *referencesColumn) String() string {
 func NewReferenceColumn() *referencesColumn {
 	return &referencesColumn{}
 }
-
-//[ CONSTRAINT constraint_name ]
-//{ NOT NULL |
-//  NULL |
-//  CHECK ( expression ) [ NO INHERIT ] |
-//  DEFAULT default_expr |
-//  GENERATED ALWAYS AS ( generation_expr ) STORED |
-//  GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ] |
-//  UNIQUE index_parameters |
-//  PRIMARY KEY index_parameters |
-//  REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ]
-//    [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
-//[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
