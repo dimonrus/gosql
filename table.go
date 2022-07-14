@@ -1,15 +1,6 @@
 package gosql
 
-//CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] имя_таблицы ( [
-//  { имя_столбца тип_данных [ COLLATE правило_сортировки ] [ ограничение_столбца [ ... ] ]
-//    | ограничение_таблицы
-//    | LIKE исходная_таблица [ вариант_копирования ... ] }
-//    [, ... ]
-//] )
-//[ INHERITS ( таблица_родитель [, ... ] ) ]
-//[ WITH ( параметр_хранения [= значение] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
-//[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
-//[ TABLESPACE табл_пространство ]
+import "strings"
 
 // Table query builder
 type Table struct {
@@ -68,29 +59,277 @@ func (t *Table) ResetTableSpace() *Table {
 	return t
 }
 
-//[ CONSTRAINT имя_ограничения ]
-//{ CHECK ( выражение ) [ NO INHERIT ] |
-//  UNIQUE ( имя_столбца [, ... ] ) параметры_индекса |
-//  PRIMARY KEY ( имя_столбца [, ... ] ) параметры_индекса |
-//  EXCLUDE [ USING индексный_метод ] ( элемент_исключения WITH оператор [, ... ] ) параметры_индекса [ WHERE ( предикат ) ] |
-//  FOREIGN KEY ( имя_столбца [, ... ] ) REFERENCES целевая_таблица [ ( целевой_столбец [, ... ] ) ]
-//    [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE действие ] [ ON UPDATE действие ] }
-//[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
-
-// constraint
+// [ CONSTRAINT constraint_name ]
+// { CHECK ( expression ) [ NO INHERIT ] |
+//  UNIQUE ( column_name [, ... ] ) index_parameters |
+//  PRIMARY KEY ( column_name [, ... ] ) index_parameters |
+//  EXCLUDE [ USING index_method ] ( exclude_element WITH operator [, ... ] ) index_parameters [ WHERE ( predicate ) ] |
+//  FOREIGN KEY ( column_name [, ... ] ) REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+//    [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
+// [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
 type constraintTable struct {
 	// name
 	name string
 	// check expression
-	check expression
+	check detailedExpression
 	// unique index
-	unique detailedExpression
+	unique columnIndexParameters
 	// primary key
-	primary detailedExpression
-	// references
-	//references references
+	primary columnIndexParameters
+	// exclude
+	exclude excludeTable
+	// foreign key
+	foreignKey string // TODO 
 	// deferrable
 	deferrable *bool
 	// initially
 	initially string
+}
+
+// table constraint index parameters
+type columnIndexParameters struct {
+	// columns
+	columns expression
+	// index parameter
+	indexParameters indexParameters
+}
+
+// Columns get columns
+func (i *columnIndexParameters) Columns() *expression {
+	return &i.columns
+}
+
+// IndexParameters get index parameters
+func (i *columnIndexParameters) IndexParameters() *indexParameters {
+	return &i.indexParameters
+}
+
+// String render index parameters
+func (i *columnIndexParameters) String() string {
+	if i.IsEmpty() {
+		return ""
+	}
+	b := strings.Builder{}
+	if i.columns.Len() > 0 {
+		b.WriteString("(" + i.columns.String(", ") + ")")
+	}
+	if !i.indexParameters.IsEmpty() {
+		b.WriteString(i.indexParameters.String())
+	}
+	return b.String()
+}
+
+// IsEmpty is index parameter empty
+func (i *columnIndexParameters) IsEmpty() bool {
+	return i == nil || (i.columns.Len() == 0 && i.indexParameters.IsEmpty())
+}
+
+// NewColumnIndexParameters new column index parameters
+func NewColumnIndexParameters() *columnIndexParameters {
+	return &columnIndexParameters{}
+}
+
+// EXCLUDE [ USING index_method ] ( exclude_element WITH operator [, ... ] ) index_parameters [ WHERE ( predicate ) ] |
+type excludeTable struct {
+	// using index method
+	using string
+	// exclude element
+	excludeElement excludeElement
+	// with expression
+	with expression
+	// index parameters
+	indexParameters indexParameters
+	// where condition
+	where Condition
+}
+
+// SetUsing set using
+func (e *excludeTable) SetUsing(using string) *excludeTable {
+	e.using = using
+	return e
+}
+
+// GetUsing get using
+func (e *excludeTable) GetUsing() string {
+	return e.using
+}
+
+// ResetUsing reset using
+func (e *excludeTable) ResetUsing() *excludeTable {
+	e.using = ""
+	return e
+}
+
+// ExcludeElement return exclude element
+func (e *excludeTable) ExcludeElement() *excludeElement {
+	return &e.excludeElement
+}
+
+// With expression
+func (e *excludeTable) With() *expression {
+	return &e.with
+}
+
+// IndexParameters return index params
+func (e *excludeTable) IndexParameters() *indexParameters {
+	return &e.indexParameters
+}
+
+// Where condition
+func (e *excludeTable) Where() *Condition {
+	return &e.where
+}
+
+// IsEmpty check if empty return true
+func (e *excludeTable) IsEmpty() bool {
+	return e == nil || (e.using == "" && e.excludeElement.IsEmpty() && e.with.Len() == 0 && e.indexParameters.IsEmpty() && e.where.IsEmpty())
+}
+
+// String render to string
+func (e *excludeTable) String() string {
+	if e.IsEmpty() {
+		return ""
+	}
+	b := strings.Builder{}
+	b.WriteString("EXCLUDE")
+	if e.using != "" {
+		b.WriteString(" USING " + e.using)
+	}
+	if !e.excludeElement.IsEmpty() {
+		if e.with.Len() > 0 {
+			b.WriteString(" (" + e.excludeElement.String() + " WITH " + e.with.String(", ") + ")")
+		} else {
+			b.WriteString(" (" + e.excludeElement.String() + ")")
+		}
+	} else if e.with.Len() > 0 {
+		b.WriteString(" WITH (" + e.with.String(", ") + ")")
+	}
+	if !e.indexParameters.IsEmpty() {
+		b.WriteString(" " + e.indexParameters.String())
+	}
+	if !e.where.IsEmpty() {
+		b.WriteString(" WHERE " + e.where.String())
+	}
+	return b.String()
+}
+
+// exclude element
+// { column_name | ( expression ) } [ opclass ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ]
+type excludeElement struct {
+	// column name
+	column string
+	// expression
+	expression expression
+	// operator class
+	opclass string
+	// direction
+	direction string
+	// nulls expression
+	nulls *string
+}
+
+// SetColumn set column name
+func (e *excludeElement) SetColumn(column string) *excludeElement {
+	e.column = column
+	return e
+}
+
+// GetColumn get column name
+func (e *excludeElement) GetColumn() string {
+	return e.column
+}
+
+// ResetColumn set column to empty
+func (e *excludeElement) ResetColumn() *excludeElement {
+	e.column = ""
+	return e
+}
+
+// SetOpClass set opclass
+func (e *excludeElement) SetOpClass(opclass string) *excludeElement {
+	e.opclass = opclass
+	return e
+}
+
+// GetOpClass get opclass
+func (e *excludeElement) GetOpClass() string {
+	return e.opclass
+}
+
+// ResetOpClass set opclass to empty
+func (e *excludeElement) ResetOpClass() *excludeElement {
+	e.opclass = ""
+	return e
+}
+
+// SetDirection set direction
+func (e *excludeElement) SetDirection(direction string) *excludeElement {
+	e.direction = direction
+	return e
+}
+
+// GetDirection get direction
+func (e *excludeElement) GetDirection() string {
+	return e.direction
+}
+
+// ResetDirection set direction to empty
+func (e *excludeElement) ResetDirection() *excludeElement {
+	e.direction = ""
+	return e
+}
+
+// SetNulls set nulls
+func (e *excludeElement) SetNulls(nulls *string) *excludeElement {
+	e.nulls = nulls
+	return e
+}
+
+// GetNulls get nulls
+func (e *excludeElement) GetNulls() *string {
+	return e.nulls
+}
+
+// ResetNulls reset null
+func (e *excludeElement) ResetNulls() *excludeElement {
+	e.nulls = nil
+	return e
+}
+
+// Expression get expression
+func (e *excludeElement) Expression() *expression {
+	return &e.expression
+}
+
+// String render exclude element
+func (e *excludeElement) String() string {
+	if e.IsEmpty() {
+		return ""
+	}
+	b := strings.Builder{}
+	if e.column != "" {
+		b.WriteString(e.column)
+	} else if e.expression.Len() > 0 {
+		b.WriteString("(" + e.expression.String(", ") + ")")
+	}
+	if e.opclass != "" {
+		b.WriteString(" " + e.opclass)
+	}
+	if e.direction != "" {
+		b.WriteString(" " + e.direction)
+	}
+	if e.nulls != nil {
+		b.WriteString(" NULLS " + *e.nulls)
+	}
+	return b.String()
+}
+
+// IsEmpty is exclude element is empty
+func (e *excludeElement) IsEmpty() bool {
+	return e == nil || (e.column == "" && e.expression.Len() == 0 && e.opclass == "" && e.direction == " " && e.nulls == nil)
+}
+
+// NewExcludeElement init exclude element
+func NewExcludeElement() *excludeElement {
+	return &excludeElement{}
 }

@@ -42,10 +42,12 @@ const (
 	ActionSetDefault = "SET DEFAULT"
 )
 
-// column query builder
+// { column_name data_type [ COMPRESSION compression_method ] [ COLLATE collation ] [ column_constraint [ ... ] ] }
 type column struct {
-	// table name
+	// column name
 	name string
+	// data type
+	dataType string
 	// sort rule
 	collate string
 	// compression method
@@ -105,13 +107,69 @@ func (c *column) ResetName() *column {
 	return c
 }
 
+// SetType set column type
+func (c *column) SetType(dataType string) *column {
+	c.dataType = dataType
+	return c
+}
+
+// GetType get column type
+func (c *column) GetType() string {
+	return c.dataType
+}
+
+// ResetType reset type
+func (c *column) ResetType() *column {
+	c.dataType = ""
+	return c
+}
+
+// Constraint get constraint
+func (c *column) Constraint() *constraintColumn {
+	return &c.constraint
+}
+
+// IsEmpty check if empty
+func (c *column) IsEmpty() bool {
+	return c == nil || (c.name == "" && c.dataType == "" && c.collate == "" && c.compression == "" && c.constraint.IsEmpty())
+}
+
 // String render column
 func (c *column) String() string {
-	// TODO render
+	if c.IsEmpty() {
+		return ""
+	}
+	b := strings.Builder{}
+	if c.name != "" {
+		b.WriteString(c.name)
+	}
+	if c.dataType != "" {
+		b.WriteString(" " + c.dataType)
+	}
+	if c.compression != "" {
+		b.WriteString(" COMPRESSION " + c.compression)
+	}
+	if c.collate != "" {
+		b.WriteString(" COLLATE " + c.compression)
+	}
+	if !c.constraint.IsEmpty() {
+		b.WriteString(" " + c.constraint.String())
+	}
 	return ""
 }
 
-// constraint column
+// [ CONSTRAINT constraint_name ]
+// { NOT NULL |
+//  NULL |
+//  CHECK ( expression ) [ NO INHERIT ] |
+//  DEFAULT default_expr |
+//  GENERATED ALWAYS AS ( generation_expr ) STORED |
+//  GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ] |
+//  UNIQUE index_parameters |
+//  PRIMARY KEY index_parameters |
+//  REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ]
+//    [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
+// [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
 type constraintColumn struct {
 	// name
 	name string
@@ -232,7 +290,47 @@ func (c *constraintColumn) ResetInitially() *constraintColumn {
 
 // String render column constraint
 func (c *constraintColumn) String() string {
-	// TODO render
+	if c.IsEmpty() {
+		return ""
+	}
+	b := strings.Builder{}
+	if c.name != "" {
+		b.WriteString("CONSTRAINT " + c.name)
+	}
+	if c.nullable != nil {
+		if *c.nullable == false {
+			b.WriteString(" NOT NULL")
+		} else {
+			b.WriteString(" NULL")
+		}
+	} else if !c.check.IsEmpty() {
+		b.WriteString(" CHECK " + c.check.String())
+	} else if c.def != "" {
+		b.WriteString(" DEFAULT " + c.def)
+	} else if c.generatedAlwaysAs.Len() > 0 {
+		b.WriteString(" GENERATED ALWAYS AS (" + c.generatedAlwaysAs.String(", ") + ") STORED")
+	} else if !c.generated.IsEmpty() {
+		b.WriteString(" GENERATED " + c.generated.GetDetail() + " AS IDENTITY")
+		if c.generated.Expression().Len() > 0 {
+			b.WriteString(" " + c.generated.Expression().String(", "))
+		}
+	} else if !c.unique.IsEmpty() {
+		b.WriteString(" UNIQUE" + c.unique.String())
+	} else if !c.primary.IsEmpty() {
+		b.WriteString(" PRIMARY KEY" + c.primary.String())
+	} else if !c.references.IsEmpty() {
+		b.WriteString(" " + c.references.String())
+	}
+	if c.deferrable != nil {
+		if *c.deferrable {
+			b.WriteString(" DEFERRABLE")
+		} else {
+			b.WriteString(" NOT DEFERRABLE")
+		}
+	}
+	if c.initially != "" {
+		b.WriteString(" INITIALLY " + c.initially)
+	}
 	return ""
 }
 
@@ -250,19 +348,6 @@ func (c *constraintColumn) IsEmpty() bool {
 		c.deferrable == nil &&
 		c.initially == "")
 }
-
-//[ CONSTRAINT constraint_name ]
-//{ NOT NULL |
-//  NULL |
-//  CHECK ( expression ) [ NO INHERIT ] |
-//  DEFAULT default_expr |
-//  GENERATED ALWAYS AS ( generation_expr ) STORED |
-//  GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ] |
-//  UNIQUE index_parameters |
-//  PRIMARY KEY index_parameters |
-//  REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ]
-//    [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
-//[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
 
 //
 //[ INCLUDE ( column_name [, ... ] ) ]
