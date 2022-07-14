@@ -2,6 +2,46 @@ package gosql
 
 import "strings"
 
+const (
+	// ReferencesMatchFull MATCH FULL
+	ReferencesMatchFull = "FULL"
+	// ReferencesMatchPartial MATCH PARTIAL
+	ReferencesMatchPartial = "PARTIAL"
+	// ReferencesMatchSimple MATCH SIMPLE
+	ReferencesMatchSimple = "SIMPLE"
+
+	// CheckNoInherit NO INHERIT
+	CheckNoInherit = "NO INHERIT"
+
+	// GeneratedStored STORED
+	GeneratedStored = "STORED"
+	// GeneratedAlways ALWAYS
+	GeneratedAlways = "ALWAYS"
+	// GeneratedByDefault BY DEFAULT
+	GeneratedByDefault = "BY DEFAULT"
+
+	// Deferrable DEFERRABLE
+	Deferrable = "DEFERRABLE"
+	// NotDeferrable NOT DEFERRABLE
+	NotDeferrable = "NOT DEFERRABLE"
+
+	// InitiallyDeferred DEFERRED
+	InitiallyDeferred = "DEFERRED"
+	// InitiallyImmediate IMMEDIATE
+	InitiallyImmediate = "IMMEDIATE"
+
+	// ActionNoAction NO ACTION
+	ActionNoAction = "NO ACTION"
+	// ActionCascade CASCADE
+	ActionCascade = "CASCADE"
+	// ActionRestrict RESTRICT
+	ActionRestrict = "RESTRICT"
+	// ActionSetNull SET NULL
+	ActionSetNull = "SET NULL"
+	// ActionSetDefault SET DEFAULT
+	ActionSetDefault = "SET DEFAULT"
+)
+
 // Table query builder
 type Table struct {
 	// table name
@@ -79,7 +119,7 @@ type constraintTable struct {
 	// exclude
 	exclude excludeTable
 	// foreign key
-	foreignKey string // TODO 
+	foreignKey string // TODO
 	// deferrable
 	deferrable *bool
 	// initially
