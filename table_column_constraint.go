@@ -18,7 +18,7 @@ type constraintColumn struct {
 	// name
 	name string
 	// nullable
-	nullable *bool
+	notNull bool
 	// check expression
 	check detailedExpression
 	// default
@@ -28,9 +28,9 @@ type constraintColumn struct {
 	// generated
 	generated detailedExpression
 	// unique index
-	unique indexParameters
+	unique *indexParameters
 	// primary key
-	primary indexParameters
+	primary *indexParameters
 	// references
 	references referencesColumn
 	// deferrable
@@ -56,9 +56,9 @@ func (c *constraintColumn) ResetName() *constraintColumn {
 	return c
 }
 
-// Nullable is constraint nullable
-func (c *constraintColumn) Nullable(isNullable *bool) *constraintColumn {
-	c.nullable = isNullable
+// NotNull is constraint nullable
+func (c *constraintColumn) NotNull(notNull bool) *constraintColumn {
+	c.notNull = notNull
 	return c
 }
 
@@ -94,14 +94,16 @@ func (c *constraintColumn) Generated() *detailedExpression {
 	return &c.generated
 }
 
-// Unique get unique
-func (c *constraintColumn) Unique() *indexParameters {
-	return &c.unique
+// SetUnique set unique
+func (c *constraintColumn) SetUnique() *indexParameters {
+	c.unique = NewIndexParameters()
+	return c.unique
 }
 
-// Primary get primary
-func (c *constraintColumn) Primary() *indexParameters {
-	return &c.primary
+// SetPrimary set primary
+func (c *constraintColumn) SetPrimary() *indexParameters {
+	c.primary = NewIndexParameters()
+	return c.primary
 }
 
 // References get references
@@ -139,30 +141,33 @@ func (c *constraintColumn) String() string {
 	}
 	b := strings.Builder{}
 	if c.name != "" {
-		b.WriteString("CONSTRAINT " + c.name)
+		b.WriteString(" CONSTRAINT " + c.name)
 	}
-	if c.nullable != nil {
-		if *c.nullable == false {
-			b.WriteString(" NOT NULL")
-		} else {
-			b.WriteString(" NULL")
-		}
-	} else if !c.check.IsEmpty() {
+	if c.notNull {
+		b.WriteString(" NOT NULL")
+	}
+	if !c.check.IsEmpty() {
 		b.WriteString(" CHECK " + c.check.String())
-	} else if c.def != "" {
+	}
+	if c.def != "" {
 		b.WriteString(" DEFAULT " + c.def)
-	} else if c.generatedAlwaysAs.Len() > 0 {
+	}
+	if c.generatedAlwaysAs.Len() > 0 {
 		b.WriteString(" GENERATED ALWAYS AS (" + c.generatedAlwaysAs.String(", ") + ") STORED")
-	} else if !c.generated.IsEmpty() {
+	}
+	if !c.generated.IsEmpty() {
 		b.WriteString(" GENERATED " + c.generated.GetDetail() + " AS IDENTITY")
 		if c.generated.Expression().Len() > 0 {
 			b.WriteString(" " + c.generated.Expression().String(", "))
 		}
-	} else if !c.unique.IsEmpty() {
+	}
+	if !c.unique.IsEmpty() {
 		b.WriteString(" UNIQUE" + c.unique.String())
-	} else if !c.primary.IsEmpty() {
+	}
+	if !c.primary.IsEmpty() {
 		b.WriteString(" PRIMARY KEY" + c.primary.String())
-	} else if !c.references.IsEmpty() {
+	}
+	if !c.references.IsEmpty() {
 		b.WriteString(" " + c.references.String())
 	}
 	if c.deferrable != nil {
@@ -175,13 +180,13 @@ func (c *constraintColumn) String() string {
 	if c.initially != "" {
 		b.WriteString(" INITIALLY " + c.initially)
 	}
-	return ""
+	return b.String()
 }
 
 // IsEmpty check if empty
 func (c *constraintColumn) IsEmpty() bool {
 	return c == nil || (c.name == "" &&
-		c.nullable == nil &&
+		c.notNull &&
 		c.check.IsEmpty() &&
 		c.def == "" &&
 		c.generatedAlwaysAs.Len() == 0 &&

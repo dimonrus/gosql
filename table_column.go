@@ -113,9 +113,9 @@ func (c *column) String() string {
 		b.WriteString(" COLLATE " + c.compression)
 	}
 	if !c.constraint.IsEmpty() {
-		b.WriteString(" " + c.constraint.String())
+		b.WriteString(c.constraint.String())
 	}
-	return ""
+	return b.String()
 }
 
 // NewColumn init column

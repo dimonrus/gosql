@@ -117,13 +117,17 @@ func (c *constraintTable) String() string {
 	}
 	if !c.check.IsEmpty() {
 		b.WriteString(" CHECK " + c.check.String())
-	} else if !c.unique.IsEmpty() {
+	}
+	if !c.unique.IsEmpty() {
 		b.WriteString(" UNIQUE " + c.unique.String())
-	} else if !c.primary.IsEmpty() {
+	}
+	if !c.primary.IsEmpty() {
 		b.WriteString(" PRIMARY KEY " + c.primary.String())
-	} else if !c.exclude.IsEmpty() {
+	}
+	if !c.exclude.IsEmpty() {
 		b.WriteString(c.exclude.String())
-	} else if !c.foreignKey.IsEmpty() {
+	}
+	if !c.foreignKey.IsEmpty() {
 		b.WriteString(c.foreignKey.String())
 	}
 	if c.deferrable != nil {
