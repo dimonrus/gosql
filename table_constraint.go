@@ -140,7 +140,7 @@ func (c *constraintTable) String() string {
 	if c.initially != "" {
 		b.WriteString(" INITIALLY " + c.initially)
 	}
-	return b.String()
+	return b.String()[1:]
 }
 
 // NewConstraintTable init table constraint

@@ -167,12 +167,10 @@ func (t *Table) AddColumn(name string) *column {
 // AddForeignKey add foreign key
 func (t *Table) AddForeignKey(target string, columns ...string) *foreignKey {
 	def, _ := t.NewDefinition()
-	fk := NewForeignKey()
-	fk.Columns().Add(columns...)
-	fk.References().SetRefTable(target)
-	fk.References().Columns().Add(columns...)
-	*def.Constraint().ForeignKey() = *fk
-	return fk
+	def.Constraint().ForeignKey().Columns().Add(columns...)
+	def.Constraint().ForeignKey().References().SetRefTable(target)
+	def.Constraint().ForeignKey().References().Columns().Add(columns...)
+	return def.Constraint().ForeignKey()
 }
 
 // Definitions implement definitions
