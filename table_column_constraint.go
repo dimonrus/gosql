@@ -57,8 +57,8 @@ func (c *constraintColumn) ResetName() *constraintColumn {
 }
 
 // NotNull is constraint nullable
-func (c *constraintColumn) NotNull(notNull bool) *constraintColumn {
-	c.notNull = notNull
+func (c *constraintColumn) NotNull() *constraintColumn {
+	c.notNull = true
 	return c
 }
 
@@ -186,7 +186,7 @@ func (c *constraintColumn) String() string {
 // IsEmpty check if empty
 func (c *constraintColumn) IsEmpty() bool {
 	return c == nil || (c.name == "" &&
-		c.notNull &&
+		!c.notNull &&
 		c.check.IsEmpty() &&
 		c.def == "" &&
 		c.generatedAlwaysAs.Len() == 0 &&

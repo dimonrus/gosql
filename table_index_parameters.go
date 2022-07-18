@@ -61,7 +61,7 @@ func (i *indexParameters) String() string {
 
 // IsEmpty is index parameter empty
 func (i *indexParameters) IsEmpty() bool {
-	return i == nil
+	return i == nil || (i.tableSpace == "" && i.include.Len() == 0 && i.with.Len() == 0)
 }
 
 // NewIndexParameters init index params

@@ -12,7 +12,7 @@ func (c columnDefinitions) String() string {
 		if i == 0 {
 			b.WriteString(definition.String())
 		} else {
-			b.WriteString(", " + definition.String())
+			b.WriteString("," + definition.String())
 		}
 	}
 	return b.String()

@@ -115,7 +115,7 @@ func (e *excludeElement) String() string {
 
 // IsEmpty is exclude element is empty
 func (e *excludeElement) IsEmpty() bool {
-	return e == nil || (e.column == "" && e.expression.Len() == 0 && e.opclass == "" && e.direction == " " && e.nulls == nil)
+	return e == nil || (e.column == "" && e.expression.Len() == 0 && e.opclass == "" && e.direction == "" && e.nulls == nil)
 }
 
 // NewExcludeElement init exclude element
