@@ -65,6 +65,16 @@ const (
 	LikeStorage = "STORAGE"
 	// LikeAll ALL
 	LikeAll = "ALL"
+
+	// WithWithoutOIDS WITHOUT OIDS
+	WithWithoutOIDS = "WITHOUT OIDS"
+
+	// PartitionByRange RANGE
+	PartitionByRange = "RANGE"
+	// PartitionByList LIST
+	PartitionByList = "LIST"
+	// PartitionByHash HASH
+	PartitionByHash = "HASH"
 )
 
 // Table create table query builder
@@ -91,8 +101,10 @@ type Table struct {
 	inherits expression
 	// using method
 	using string
-	// TODO Partition
-	// TODO WITH
+	// Partition
+	partition partitionTable
+	// with
+	with detailedExpression
 	// tablespace
 	tablespace string
 	// on commit params
@@ -129,8 +141,18 @@ func (t *Table) String() string {
 	if t.inherits.Len() > 0 {
 		b.WriteString(" INHERITS " + t.inherits.String(", "))
 	}
+	if !t.partition.IsEmpty() {
+		b.WriteString(" PARTITION BY " + t.partition.String())
+	}
 	if t.using != "" {
 		b.WriteString(" USING " + t.using)
+	}
+	if !t.with.IsEmpty() {
+		if t.with.GetDetail() != "" {
+			b.WriteString(" " + t.with.GetDetail())
+		} else {
+			b.WriteString(" WITH " + t.with.String())
+		}
 	}
 	if t.onCommit != "" {
 		b.WriteString(" ON COMMIT " + t.onCommit)
@@ -173,6 +195,23 @@ func (t *Table) AddForeignKey(target string, columns ...string) *foreignKey {
 	return def.Constraint().ForeignKey()
 }
 
+// With expression
+func (t *Table) With(expr ...string) *detailedExpression {
+	t.with.Expression().Add(expr...)
+	return &t.with
+}
+
+// With expression
+func (t *Table) WithOutOIDS() *detailedExpression {
+	t.with.SetDetail(WithWithoutOIDS)
+	return &t.with
+}
+
+// Partition expression
+func (t *Table) Partition() *partitionTable {
+	return &t.partition
+}
+
 // Definitions implement definitions
 func (t *Table) Definitions(definition ...*columnDefinition) *Table {
 	t.definitions = definition
@@ -204,6 +243,8 @@ func (t *Table) IsEmpty() bool {
 		t.name == "" &&
 		len(t.definitions) == 0 &&
 		t.inherits.Len() == 0 &&
+		t.using == "" &&
+		t.with.IsEmpty() &&
 		t.tablespace == "" &&
 		t.onCommit == "")
 }
