@@ -75,6 +75,15 @@ const (
 	PartitionByList = "LIST"
 	// PartitionByHash HASH
 	PartitionByHash = "HASH"
+
+	// PartitionBoundFromMin MINVALUE
+	PartitionBoundFromMin = "MINVALUE"
+	// PartitionBoundFromMax MAXVALUE
+	PartitionBoundFromMax = "MAXVALUE"
+	// PartitionBoundWithModulus MODULUS
+	PartitionBoundWithModulus = "MODULUS"
+	// PartitionBoundWithRemainder REMAINDER
+	PartitionBoundWithRemainder = "REMAINDER"
 )
 
 // Table create table query builder

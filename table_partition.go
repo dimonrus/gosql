@@ -2,27 +2,6 @@ package gosql
 
 import "strings"
 
-// list of partition columns
-type partitionColumns []*partitionColumn
-
-// String render all column definitions
-func (c partitionColumns) String() string {
-	b := strings.Builder{}
-	for i, definition := range c {
-		if i == 0 {
-			b.WriteString(definition.String())
-		} else {
-			b.WriteString(", " + definition.String())
-		}
-	}
-	return b.String()
-}
-
-// Len count of partition columns
-func (c partitionColumns) Len() int {
-	return len(c)
-}
-
 //{ column_name | ( expression ) } [ COLLATE collation ] [ opclass ]
 type partitionColumn struct {
 	expression expression
@@ -104,7 +83,7 @@ type partitionTable struct {
 	// type of partition
 	partitionBy string
 	// partition columns list
-	partitionColumns partitionColumns
+	clause expression
 }
 
 // By type of partition RANGE | LIST | HASH
@@ -113,20 +92,16 @@ func (p *partitionTable) By(class string) *partitionTable {
 	return p
 }
 
-// Add partition
-//  { column_name | ( expression ) } [ COLLATE collation ] [ opclass ]
-func (p *partitionTable) Add(expression, collation, opclass string) *partitionColumn {
-	col := NewPartitionColumn()
-	col.Expression().Add(expression)
-	col.SetCollate(collation)
-	col.SetOpClass(opclass)
-	p.partitionColumns = append(p.partitionColumns, col)
-	return col
+// Clause Add partition clause
+// { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ]
+func (p *partitionTable) Clause(expression ...string) *expression {
+	p.clause.Add(expression...)
+	return &p.clause
 }
 
 // IsEmpty check is partition is empty
 func (p *partitionTable) IsEmpty() bool {
-	return p == nil || (p.partitionBy == "" && p.partitionColumns.Len() == 0)
+	return p == nil || (p.partitionBy == "" && p.clause.Len() == 0)
 }
 
 // String Render partition into string
@@ -138,8 +113,76 @@ func (p *partitionTable) String() string {
 	if p.partitionBy != "" {
 		b.WriteString(" " + p.partitionBy)
 	}
-	if p.partitionColumns.Len() > 0 {
-		b.WriteString(" " + p.partitionColumns.String())
+	if p.clause.Len() > 0 {
+		b.WriteString(" (" + p.clause.String(", ") + ")")
 	}
+	return b.String()[1:]
+}
+
+// partitionBound
+// PARTITION OF parent_table [ (
+//  { column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
+//    | table_constraint }
+//    [, ... ]
+//) ] { FOR VALUES partition_bound_spec | DEFAULT }
+// IN ( partition_bound_expr [, ...] ) |
+// FROM ( { partition_bound_expr | MINVALUE | MAXVALUE } [, ...] )
+//  TO ( { partition_bound_expr | MINVALUE | MAXVALUE } [, ...] ) |
+// WITH ( MODULUS numeric_literal, REMAINDER numeric_literal )
+type partitionBound struct {
+	// in
+	in expression
+	// from
+	from expression
+	// to
+	to expression
+	// with
+	with expression
+}
+
+// In expression
+func (p *partitionBound) In() *expression {
+	return &p.in
+}
+
+// From expression
+func (p *partitionBound) From() *expression {
+	return &p.from
+}
+
+// To expression
+func (p *partitionBound) To() *expression {
+	return &p.to
+}
+
+// With expression
+func (p *partitionBound) With() *expression {
+	return &p.with
+}
+
+// IsEmpty check is partition bound is empty
+func (p *partitionBound) IsEmpty() bool {
+	return p == nil || (p.in.Len() == 0 && p.from.Len() == 0 && p.to.Len() == 0 && p.with.Len() == 0)
+}
+
+// String Render partition bound into string
+func (p *partitionBound) String() string {
+	if p.IsEmpty() {
+		return ""
+	}
+	b := strings.Builder{}
+	if p.in.Len() > 0 {
+		b.WriteString(" IN (" + p.in.String(", ") + ")")
+	}
+	if p.from.Len() > 0 {
+		b.WriteString(" FROM (" + p.from.String(", ") + ")")
+	}
+	if p.to.Len() > 0 {
+		b.WriteString(" TO (" + p.to.String(", ") + ")")
+	}
+	if p.with.Len() > 0 {
+		b.WriteString(" WITH (" + p.with.String(", ") + ")")
+	}
+
 	return b.String()[1:]
 }
