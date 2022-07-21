@@ -84,6 +84,9 @@ const (
 	PartitionBoundWithModulus = "MODULUS"
 	// PartitionBoundWithRemainder REMAINDER
 	PartitionBoundWithRemainder = "REMAINDER"
+
+	// PartitionOfWithOptions WITH OPTIONS
+	PartitionOfWithOptions = "WITH OPTIONS"
 )
 
 // Table create table query builder
@@ -106,6 +109,10 @@ type Table struct {
 	name string
 	// definitions
 	definitions columnDefinitions
+	// of type
+	ofType string
+	// of definitions
+	ofDefinitions ofDefinitions
 	// inherits
 	inherits expression
 	// using method
@@ -144,8 +151,13 @@ func (t *Table) String() string {
 	if t.name != "" {
 		b.WriteString(" TABLE " + t.name)
 	}
-	if len(t.definitions) > 0 {
+	if t.definitions.Len() > 0 {
 		b.WriteString(" (" + t.definitions.String() + ")")
+	} else if t.ofType != "" {
+		b.WriteString(" OF " + t.ofType)
+		if t.ofDefinitions.Len() > 0 {
+			b.WriteString(" (" + t.ofDefinitions.String() + ")")
+		}
 	}
 	if t.inherits.Len() > 0 {
 		b.WriteString(" INHERITS " + t.inherits.String(", "))
@@ -204,13 +216,19 @@ func (t *Table) AddForeignKey(target string, columns ...string) *foreignKey {
 	return def.Constraint().ForeignKey()
 }
 
+// AddConstraint add constraint
+func (t *Table) AddConstraint() *constraintTable {
+	def, _ := t.NewDefinition()
+	return def.Constraint()
+}
+
 // With expression
 func (t *Table) With(expr ...string) *detailedExpression {
 	t.with.Expression().Add(expr...)
 	return &t.with
 }
 
-// With expression
+// WithOutOIDS expression
 func (t *Table) WithOutOIDS() *detailedExpression {
 	t.with.SetDetail(WithWithoutOIDS)
 	return &t.with
@@ -251,6 +269,8 @@ func (t *Table) IsEmpty() bool {
 	return t == nil || (t.scope == "" &&
 		t.name == "" &&
 		len(t.definitions) == 0 &&
+		t.ofType == "" &&
+		t.ofDefinitions.Len() == 0 &&
 		t.inherits.Len() == 0 &&
 		t.using == "" &&
 		t.with.IsEmpty() &&
@@ -314,6 +334,54 @@ func (t *Table) GetName() string {
 // Inherits inherit form tables
 func (t *Table) Inherits() *expression {
 	return &t.inherits
+}
+
+// NewOfTypeDefinition add of type definition
+func (t *Table) NewOfTypeDefinition() (def *ofDefinition, n int) {
+	def = NewOfTypeDefinition()
+	t.ofDefinitions = append(t.ofDefinitions, def)
+	return def, len(t.definitions) - 1
+}
+
+// RemoveOfTypeDefinition remove of type definition by n
+func (t *Table) RemoveOfTypeDefinition(n int) *Table {
+	t.ofDefinitions = append(t.ofDefinitions[:n], t.ofDefinitions[n+1:]...)
+	return t
+}
+
+// ClearOfTypeDefinition remove all of type definitions
+func (t *Table) ClearOfTypeDefinition() *Table {
+	t.ofDefinitions = t.ofDefinitions[:0]
+	return t
+}
+
+// AddOfTypeConstraint add of type constraint
+func (t *Table) AddOfTypeConstraint() *constraintTable {
+	def, _ := t.NewOfTypeDefinition()
+	return def.Constraint()
+}
+
+// AddOfTypeColumn add of type column
+func (t *Table) AddOfTypeColumn(name string) *ofColumn {
+	def, _ := t.NewOfTypeDefinition()
+	return def.Column().SetName(name)
+}
+
+// SetOfType set ofType
+func (t *Table) SetOfType(ofType string) *Table {
+	t.ofType = ofType
+	return t
+}
+
+// GetOfType get ofType
+func (t *Table) GetOfType() string {
+	return t.ofType
+}
+
+// ResetOfType reset ofType
+func (t *Table) ResetOfType() *Table {
+	t.ofType = ""
+	return t
 }
 
 // SetTableSpace set table space

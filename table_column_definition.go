@@ -18,6 +18,11 @@ func (c columnDefinitions) String() string {
 	return b.String()
 }
 
+// Len count of definition
+func (c columnDefinitions) Len() int {
+	return len(c)
+}
+
 // table column definition
 // { column_name data_type [ COMPRESSION compression_method ] [ COLLATE collation ] [ column_constraint [ ... ] ]
 //    | table_constraint

@@ -161,10 +161,10 @@ func (c *constraintColumn) String() string {
 			b.WriteString(" " + c.generated.Expression().String(", "))
 		}
 	}
-	if !c.unique.IsEmpty() {
+	if c.unique != nil {
 		b.WriteString(" UNIQUE" + c.unique.String())
 	}
-	if !c.primary.IsEmpty() {
+	if c.primary != nil {
 		b.WriteString(" PRIMARY KEY" + c.primary.String())
 	}
 	if !c.references.IsEmpty() {
@@ -191,8 +191,8 @@ func (c *constraintColumn) IsEmpty() bool {
 		c.def == "" &&
 		c.generatedAlwaysAs.Len() == 0 &&
 		c.generated.IsEmpty() &&
-		c.unique.IsEmpty() &&
-		c.primary.IsEmpty() &&
+		c.unique != nil &&
+		c.primary != nil &&
 		c.references.IsEmpty() &&
 		c.deferrable == nil &&
 		c.initially == "")
