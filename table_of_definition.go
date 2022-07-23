@@ -23,6 +23,95 @@ func (c ofDefinitions) Len() int {
 	return len(c)
 }
 
+// Add new definition
+func (c *ofDefinitions) Add() (def *ofDefinition, n int) {
+	// maloc new definition
+	def = &ofDefinition{}
+	// index of new definition in definition list
+	n = len(*c)
+	// append new definition in list
+	*c = append(*c, def)
+	return
+}
+
+// Remove definition by n
+func (c *ofDefinitions) Remove(n int) *ofDefinitions {
+	*c = append((*c)[:n], (*c)[n+1:]...)
+	return c
+}
+
+// Clear remove all definitions
+func (c *ofDefinitions) Clear() *ofDefinitions {
+	*c = (*c)[:0]
+	return c
+}
+
+// AddConstraint add constraint definition
+func (c *ofDefinitions) AddConstraint() *constraintTable {
+	def, _ := c.Add()
+	return def.Constraint()
+}
+
+// AddColumn add column definition
+func (c *ofDefinitions) AddColumn(name string) *ofColumn {
+	def, _ := c.Add()
+	return def.Column().SetName(name)
+}
+
+//  OF type_name [ (
+//  { column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
+//    | table_constraint }
+//    [, ... ]
+//) ]
+type ofType struct {
+	// of type
+	name string
+	// of definitions
+	ofDefinitions ofDefinitions
+}
+
+// SetName set name
+func (t *ofType) SetName(name string) *ofType {
+	t.name = name
+	return t
+}
+
+// GetName get name
+func (t *ofType) GetName() string {
+	return t.name
+}
+
+// ResetName reset name
+func (t *ofType) ResetName() *ofType {
+	t.name = ""
+	return t
+}
+
+// Columns get columns definitions
+func (t *ofType) Columns() *ofDefinitions {
+	return &t.ofDefinitions
+}
+
+// IsEmpty check if empty
+func (t *ofType) IsEmpty() bool {
+	return t == nil || (t.name == "" && t.ofDefinitions.Len() == 0)
+}
+
+// String render column
+func (t *ofType) String() string {
+	if t.IsEmpty() {
+		return ""
+	}
+	b := strings.Builder{}
+	if t.name != "" {
+		b.WriteString(" OF " + t.name)
+	}
+	if t.ofDefinitions.Len() > 0 {
+		b.WriteString(" (" + t.ofDefinitions.String() + ")")
+	}
+	return b.String()
+}
+
 //  { column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
 //    | table_constraint }
 //    [, ... ]
@@ -60,11 +149,6 @@ func (c *ofDefinition) String() string {
 		b.WriteString(" " + c.constraintTable.String())
 	}
 	return b.String()
-}
-
-// NewOfTypeDefinition init ofDefinition
-func NewOfTypeDefinition() *ofDefinition {
-	return &ofDefinition{}
 }
 
 // column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
@@ -126,9 +210,4 @@ func (c *ofColumn) String() string {
 		b.WriteString(c.constraint.String())
 	}
 	return b.String()
-}
-
-// NewOfTypeColumn init of column
-func NewOfTypeColumn() *ofColumn {
-	return &ofColumn{}
 }

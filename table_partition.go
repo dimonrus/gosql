@@ -119,12 +119,7 @@ func (p *partitionTable) String() string {
 	return b.String()[1:]
 }
 
-// partitionBound
-// PARTITION OF parent_table [ (
-//  { column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
-//    | table_constraint }
-//    [, ... ]
-//) ] { FOR VALUES partition_bound_spec | DEFAULT }
+// partition_bound_spec
 // IN ( partition_bound_expr [, ...] ) |
 // FROM ( { partition_bound_expr | MINVALUE | MAXVALUE } [, ...] )
 //  TO ( { partition_bound_expr | MINVALUE | MAXVALUE } [, ...] ) |

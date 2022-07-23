@@ -23,6 +23,47 @@ func (c columnDefinitions) Len() int {
 	return len(c)
 }
 
+// Add new definition
+func (c *columnDefinitions) Add() (def *columnDefinition, n int) {
+	// maloc new definition
+	def = &columnDefinition{}
+	// index of new definition in definition list
+	n = len(*c)
+	// append new definition in list
+	*c = append(*c, def)
+	return
+}
+
+// Remove definition by n
+func (c *columnDefinitions) Remove(n int) *columnDefinitions {
+	*c = append((*c)[:n], (*c)[n+1:]...)
+	return c
+}
+
+// Clear remove all definitions
+func (c *columnDefinitions) Clear() *columnDefinitions {
+	*c = (*c)[:0]
+	return c
+}
+
+// AddConstraint add constraint definition
+func (c *columnDefinitions) AddConstraint() *constraintTable {
+	def, _ := c.Add()
+	return def.Constraint()
+}
+
+// AddColumn add column definition
+func (c *columnDefinitions) AddColumn() *column {
+	def, _ := c.Add()
+	return def.Column()
+}
+
+// AddLike add like expression
+func (c *columnDefinitions) AddLike() *likeTable {
+	def, _ := c.Add()
+	return def.Like()
+}
+
 // table column definition
 // { column_name data_type [ COMPRESSION compression_method ] [ COLLATE collation ] [ column_constraint [ ... ] ]
 //    | table_constraint

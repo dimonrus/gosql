@@ -102,6 +102,30 @@ const (
 // [ WITH ( storage_parameter [= value] [, ... ] ) | WITHOUT OIDS ]
 // [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
 // [ TABLESPACE tablespace_name ]
+//
+// CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name
+//     OF type_name [ (
+//   { column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
+//     | table_constraint }
+//     [, ... ]
+// ) ]
+// [ PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
+// [ USING method ]
+// [ WITH ( storage_parameter [= value] [, ... ] ) | WITHOUT OIDS ]
+// [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+// [ TABLESPACE tablespace_name ]
+//
+// CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name
+//     PARTITION OF parent_table [ (
+//   { column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
+//     | table_constraint }
+//     [, ... ]
+// ) ] { FOR VALUES partition_bound_spec | DEFAULT }
+// [ PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
+// [ USING method ]
+// [ WITH ( storage_parameter [= value] [, ... ] ) | WITHOUT OIDS ]
+// [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+// [ TABLESPACE tablespace_name ]
 type Table struct {
 	// scope GLOBAL | LOCAL
 	scope string
@@ -109,10 +133,10 @@ type Table struct {
 	name string
 	// definitions
 	definitions columnDefinitions
-	// of type
-	ofType string
-	// of definitions
-	ofDefinitions ofDefinitions
+	// of type definition
+	ofTypeDefinition ofType
+	// of partition definition
+	ofPartition ofPartition
 	// inherits
 	inherits expression
 	// using method
@@ -131,6 +155,20 @@ type Table struct {
 	unLogged bool
 	// If not exists
 	ifNotExists bool
+}
+
+// IsEmpty check if table is empty
+func (t *Table) IsEmpty() bool {
+	return t == nil || (t.scope == "" &&
+		t.name == "" &&
+		len(t.definitions) == 0 &&
+		t.ofTypeDefinition.IsEmpty() &&
+		t.ofPartition.IsEmpty() &&
+		t.inherits.Len() == 0 &&
+		t.using == "" &&
+		t.with.IsEmpty() &&
+		t.tablespace == "" &&
+		t.onCommit == "")
 }
 
 // String render table
@@ -153,11 +191,10 @@ func (t *Table) String() string {
 	}
 	if t.definitions.Len() > 0 {
 		b.WriteString(" (" + t.definitions.String() + ")")
-	} else if t.ofType != "" {
-		b.WriteString(" OF " + t.ofType)
-		if t.ofDefinitions.Len() > 0 {
-			b.WriteString(" (" + t.ofDefinitions.String() + ")")
-		}
+	} else if !t.ofTypeDefinition.IsEmpty() {
+		b.WriteString(t.ofTypeDefinition.String())
+	} else if !t.ofPartition.IsEmpty() {
+		b.WriteString(t.ofPartition.String())
 	}
 	if t.inherits.Len() > 0 {
 		b.WriteString(" INHERITS " + t.inherits.String(", "))
@@ -203,23 +240,22 @@ func (t *Table) ResetUsing() *Table {
 
 // AddColumn add column
 func (t *Table) AddColumn(name string) *column {
-	def, _ := t.NewDefinition()
+	def, _ := t.definitions.Add()
 	return def.Column().SetName(name)
 }
 
 // AddForeignKey add foreign key
 func (t *Table) AddForeignKey(target string, columns ...string) *foreignKey {
-	def, _ := t.NewDefinition()
-	def.Constraint().ForeignKey().Columns().Add(columns...)
-	def.Constraint().ForeignKey().References().SetRefTable(target)
-	def.Constraint().ForeignKey().References().Columns().Add(columns...)
-	return def.Constraint().ForeignKey()
+	fk := t.definitions.AddConstraint().ForeignKey()
+	fk.Columns().Add(columns...)
+	fk.References().SetRefTable(target)
+	fk.References().Columns().Add(columns...)
+	return fk
 }
 
 // AddConstraint add constraint
 func (t *Table) AddConstraint() *constraintTable {
-	def, _ := t.NewDefinition()
-	return def.Constraint()
+	return t.definitions.AddConstraint()
 }
 
 // With expression
@@ -239,43 +275,14 @@ func (t *Table) Partition() *partitionTable {
 	return &t.partition
 }
 
-// Definitions implement definitions
-func (t *Table) Definitions(definition ...*columnDefinition) *Table {
-	t.definitions = definition
-	return t
+// OfType get of type definition
+func (t *Table) OfType() *ofType {
+	return &t.ofTypeDefinition
 }
 
-// NewDefinition add column definition
-func (t *Table) NewDefinition() (def *columnDefinition, n int) {
-	def = NewColumnDefinition()
-	t.definitions = append(t.definitions, def)
-	return def, len(t.definitions) - 1
-}
-
-// RemoveDefinition remove definition by n
-func (t *Table) RemoveDefinition(n int) *Table {
-	t.definitions = append(t.definitions[:n], t.definitions[n+1:]...)
-	return t
-}
-
-// ClearDefinition remove all definitions
-func (t *Table) ClearDefinition() *Table {
-	t.definitions = t.definitions[:0]
-	return t
-}
-
-// IsEmpty check if table is empty
-func (t *Table) IsEmpty() bool {
-	return t == nil || (t.scope == "" &&
-		t.name == "" &&
-		len(t.definitions) == 0 &&
-		t.ofType == "" &&
-		t.ofDefinitions.Len() == 0 &&
-		t.inherits.Len() == 0 &&
-		t.using == "" &&
-		t.with.IsEmpty() &&
-		t.tablespace == "" &&
-		t.onCommit == "")
+// OfPartition get of partition definition
+func (t *Table) OfPartition() *ofPartition {
+	return &t.ofPartition
 }
 
 // SetOnCommit set onCommit
@@ -295,11 +302,21 @@ func (t *Table) ResetOnCommit() *Table {
 	return t
 }
 
-// Flags Set create flags
-func (t *Table) Flags(ifNotExists, temp, unLogged bool) *Table {
-	t.ifNotExists = ifNotExists
-	t.unLogged = unLogged
-	t.temp = temp
+// IfNotExists Set to true
+func (t *Table) IfNotExists() *Table {
+	t.ifNotExists = true
+	return t
+}
+
+// UnLogged Set to true
+func (t *Table) UnLogged() *Table {
+	t.unLogged = true
+	return t
+}
+
+// Temp Set temp to true
+func (t *Table) Temp() *Table {
+	t.temp = true
 	return t
 }
 
@@ -336,54 +353,6 @@ func (t *Table) Inherits() *expression {
 	return &t.inherits
 }
 
-// NewOfTypeDefinition add of type definition
-func (t *Table) NewOfTypeDefinition() (def *ofDefinition, n int) {
-	def = NewOfTypeDefinition()
-	t.ofDefinitions = append(t.ofDefinitions, def)
-	return def, len(t.definitions) - 1
-}
-
-// RemoveOfTypeDefinition remove of type definition by n
-func (t *Table) RemoveOfTypeDefinition(n int) *Table {
-	t.ofDefinitions = append(t.ofDefinitions[:n], t.ofDefinitions[n+1:]...)
-	return t
-}
-
-// ClearOfTypeDefinition remove all of type definitions
-func (t *Table) ClearOfTypeDefinition() *Table {
-	t.ofDefinitions = t.ofDefinitions[:0]
-	return t
-}
-
-// AddOfTypeConstraint add of type constraint
-func (t *Table) AddOfTypeConstraint() *constraintTable {
-	def, _ := t.NewOfTypeDefinition()
-	return def.Constraint()
-}
-
-// AddOfTypeColumn add of type column
-func (t *Table) AddOfTypeColumn(name string) *ofColumn {
-	def, _ := t.NewOfTypeDefinition()
-	return def.Column().SetName(name)
-}
-
-// SetOfType set ofType
-func (t *Table) SetOfType(ofType string) *Table {
-	t.ofType = ofType
-	return t
-}
-
-// GetOfType get ofType
-func (t *Table) GetOfType() string {
-	return t.ofType
-}
-
-// ResetOfType reset ofType
-func (t *Table) ResetOfType() *Table {
-	t.ofType = ""
-	return t
-}
-
 // SetTableSpace set table space
 func (t *Table) SetTableSpace(space string) *Table {
 	t.tablespace = space
@@ -401,7 +370,13 @@ func (t *Table) ResetTableSpace() *Table {
 	return t
 }
 
-// NewTable init table
-func NewTable(name string) *Table {
+// SQL Render query
+func (t *Table) SQL() (query string, params []any, returning []any) {
+	query = t.String()
+	return
+}
+
+// CreateTable init table
+func CreateTable(name string) *Table {
 	return &Table{name: name}
 }
