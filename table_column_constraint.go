@@ -191,8 +191,8 @@ func (c *constraintColumn) IsEmpty() bool {
 		c.def == "" &&
 		c.generatedAlwaysAs.Len() == 0 &&
 		c.generated.IsEmpty() &&
-		c.unique != nil &&
-		c.primary != nil &&
+		c.unique == nil &&
+		c.primary == nil &&
 		c.references.IsEmpty() &&
 		c.deferrable == nil &&
 		c.initially == "")
