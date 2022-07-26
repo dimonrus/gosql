@@ -14,7 +14,7 @@ type constraintTable struct {
 	// name
 	name string
 	// check expression
-	check detailedExpression
+	check *Condition
 	// unique index
 	unique columnIndexParameters
 	// primary key
@@ -47,8 +47,11 @@ func (c *constraintTable) ResetName() *constraintTable {
 }
 
 // Check get check expression
-func (c *constraintTable) Check() *detailedExpression {
-	return &c.check
+func (c *constraintTable) Check() *Condition {
+	if c.check.IsEmpty() {
+		c.check = NewSqlCondition(ConditionOperatorAnd)
+	}
+	return c.check
 }
 
 // Unique get unique expression
@@ -145,5 +148,5 @@ func (c *constraintTable) String() string {
 
 // NewConstraintTable init table constraint
 func NewConstraintTable() *constraintTable {
-	return &constraintTable{}
+	return &constraintTable{check: NewSqlCondition(ConditionOperatorAnd)}
 }

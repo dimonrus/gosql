@@ -146,7 +146,7 @@ func (c *ofDefinition) String() string {
 	if !c.ofColumn.IsEmpty() {
 		b.WriteString(c.ofColumn.String())
 	} else if !c.constraintTable.IsEmpty() {
-		b.WriteString(" " + c.constraintTable.String())
+		b.WriteString(c.constraintTable.String())
 	}
 	return b.String()
 }

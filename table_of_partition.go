@@ -58,7 +58,7 @@ func (p *ofPartition) String() string {
 	if !p.values.IsEmpty() {
 		b.WriteString(" FOR VALUES " + p.values.String())
 	} else {
-		b.WriteString(" FOR VALUES DEFAULT")
+		b.WriteString(" DEFAULT")
 	}
 	return b.String()
 }
