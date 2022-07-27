@@ -55,7 +55,7 @@ type comment struct {
 
 // IsEmpty check if empty
 func (c *comment) IsEmpty() bool {
-	return c == nil
+	return c == nil || c.detailedExpression.IsEmpty()
 }
 
 // Column comment column
