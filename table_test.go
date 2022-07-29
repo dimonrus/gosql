@@ -13,12 +13,12 @@ func TestTable_String(t *testing.T) {
 		//    len         interval hour to minute
 		// );
 		films := CreateTable("films")
-		films.AddColumn("code").SetType("char(5)").Constraint().SetName("firstkey").SetPrimary()
-		films.AddColumn("title").SetType("varchar(40)").Constraint().NotNull()
-		films.AddColumn("did").SetType("integer").Constraint().NotNull()
-		films.AddColumn("date_prod").SetType("date")
-		films.AddColumn("kind").SetType("varchar(10)")
-		films.AddColumn("len").SetType("interval hour to minute")
+		films.AddColumn("code").Type("char(5)").Constraint().Name("firstkey").PrimaryKey()
+		films.AddColumn("title").Type("varchar(40)").Constraint().NotNull()
+		films.AddColumn("did").Type("integer").Constraint().NotNull()
+		films.AddColumn("date_prod").Type("date")
+		films.AddColumn("kind").Type("varchar(10)")
+		films.AddColumn("len").Type("interval hour to minute")
 		t.Log(films.String())
 		if films.String() != "CREATE TABLE films (code char(5) CONSTRAINT firstkey PRIMARY KEY, title varchar(40) NOT NULL, did integer NOT NULL, date_prod date, kind varchar(10), len interval hour to minute);" {
 			t.Fatal("films table wrong query")
@@ -29,10 +29,10 @@ func TestTable_String(t *testing.T) {
 		//     name   varchar(40) NOT NULL CHECK (name <> '')
 		// );
 		distributors := CreateTable("distributors")
-		did := distributors.AddColumn("did").SetType("integer")
-		did.Constraint().SetPrimary()
+		did := distributors.AddColumn("did").Type("integer")
+		did.Constraint().PrimaryKey()
 		did.Constraint().Generated().SetDetail(GeneratedByDefault)
-		name := distributors.AddColumn("name").SetType("varchar(40)")
+		name := distributors.AddColumn("name").Type("varchar(40)")
 		name.Constraint().NotNull()
 		name.Constraint().Check().Expression().Add("name <> ''")
 		t.Log(distributors.String())
@@ -44,7 +44,7 @@ func TestTable_String(t *testing.T) {
 		//    vector  int[][]
 		// );
 		arrayInt := CreateTable("array_int")
-		arrayInt.AddColumn("vector").SetType("int[][]")
+		arrayInt.AddColumn("vector").Type("int[][]")
 		t.Log(arrayInt.String())
 		if arrayInt.String() != "CREATE TABLE array_int (vector int[][]);" {
 			t.Fatal("wrong array_int query")
@@ -61,13 +61,13 @@ func TestTable_String(t *testing.T) {
 		//    CONSTRAINT production UNIQUE(date_prod)
 		// );
 		films := CreateTable("films")
-		films.AddColumn("code").SetType("char(5)")
-		films.AddColumn("title").SetType("varchar(40)")
-		films.AddColumn("did").SetType("integer")
-		films.AddColumn("date_prod").SetType("date")
-		films.AddColumn("kind").SetType("varchar(10)")
-		films.AddColumn("len").SetType("interval hour to minute")
-		films.AddConstraint().SetName("production").Unique().Columns().Add("date_prod")
+		films.AddColumn("code").Type("char(5)")
+		films.AddColumn("title").Type("varchar(40)")
+		films.AddColumn("did").Type("integer")
+		films.AddColumn("date_prod").Type("date")
+		films.AddColumn("kind").Type("varchar(10)")
+		films.AddColumn("len").Type("interval hour to minute")
+		films.AddConstraint().Name("production").Unique().Columns().Add("date_prod")
 		t.Log(films.String())
 		if films.String() != "CREATE TABLE films (code char(5), title varchar(40), did integer, date_prod date, kind varchar(10), len interval hour to minute, CONSTRAINT production UNIQUE (date_prod));" {
 			t.Fatal("constraint films table wrong query")
@@ -80,8 +80,8 @@ func TestTable_String(t *testing.T) {
 		//    name    varchar(40)
 		// );
 		distributors := CreateTable("distributors")
-		distributors.AddColumn("did").SetType("integer").Constraint().Check().Expression().Add("did > 100")
-		distributors.AddColumn("name").SetType("varchar(40)")
+		distributors.AddColumn("did").Type("integer").Constraint().Check().Expression().Add("did > 100")
+		distributors.AddColumn("name").Type("varchar(40)")
 		t.Log(distributors.String())
 		if distributors.String() != "CREATE TABLE distributors (did integer CHECK (did > 100), name varchar(40));" {
 			t.Fatal("wrong check distributors query")
@@ -95,9 +95,9 @@ func TestTable_String(t *testing.T) {
 		//    CONSTRAINT con1 CHECK (did > 100 AND name <> '')
 		// );
 		distributors := CreateTable("distributors")
-		distributors.AddColumn("did").SetType("integer")
-		distributors.AddColumn("name").SetType("varchar(40)")
-		distributors.AddConstraint().SetName("con1").
+		distributors.AddColumn("did").Type("integer")
+		distributors.AddColumn("name").Type("varchar(40)")
+		distributors.AddConstraint().Name("con1").
 			Check().
 			AddExpression("did > 100").
 			AddExpression("name <> ''")
@@ -118,13 +118,13 @@ func TestTable_String(t *testing.T) {
 		//    CONSTRAINT code_title PRIMARY KEY(code,title)
 		// );
 		films := CreateTable("films")
-		films.AddColumn("code").SetType("char(5)")
-		films.AddColumn("title").SetType("varchar(40)")
-		films.AddColumn("did").SetType("integer")
-		films.AddColumn("date_prod").SetType("date")
-		films.AddColumn("kind").SetType("varchar(10)")
-		films.AddColumn("len").SetType("interval hour to minute")
-		films.AddConstraint().SetName("code_title").PrimaryKey().Columns().Add("code", "title")
+		films.AddColumn("code").Type("char(5)")
+		films.AddColumn("title").Type("varchar(40)")
+		films.AddColumn("did").Type("integer")
+		films.AddColumn("date_prod").Type("date")
+		films.AddColumn("kind").Type("varchar(10)")
+		films.AddColumn("len").Type("interval hour to minute")
+		films.AddConstraint().Name("code_title").PrimaryKey().Columns().Add("code", "title")
 		t.Log(films.String())
 		if films.String() != "CREATE TABLE films (code char(5), title varchar(40), did integer, date_prod date, kind varchar(10), len interval hour to minute, CONSTRAINT code_title PRIMARY KEY (code, title));" {
 			t.Fatal("wrong films constraint_primary_key")
@@ -138,8 +138,8 @@ func TestTable_String(t *testing.T) {
 		//    PRIMARY KEY(did)
 		// );
 		distributors := CreateTable("distributors")
-		distributors.AddColumn("did").SetType("integer")
-		distributors.AddColumn("name").SetType("varchar(40)")
+		distributors.AddColumn("did").Type("integer")
+		distributors.AddColumn("name").Type("varchar(40)")
 		distributors.AddConstraint().PrimaryKey().Columns().Add("did")
 		t.Log(distributors.String())
 		if distributors.String() != "CREATE TABLE distributors (did integer, name varchar(40), PRIMARY KEY (did));" {
@@ -150,8 +150,8 @@ func TestTable_String(t *testing.T) {
 		//    name    varchar(40)
 		// );
 		distributors = CreateTable("distributors")
-		distributors.AddColumn("did").SetType("integer").Constraint().SetPrimary()
-		distributors.AddColumn("name").SetType("varchar(40)")
+		distributors.AddColumn("did").Type("integer").Constraint().PrimaryKey()
+		distributors.AddColumn("name").Type("varchar(40)")
 		t.Log(distributors.String())
 		if distributors.String() != "CREATE TABLE distributors (did integer PRIMARY KEY, name varchar(40));" {
 			t.Fatal("wrong primary_key_column column")
@@ -165,9 +165,9 @@ func TestTable_String(t *testing.T) {
 		//    modtime   timestamp DEFAULT current_timestamp
 		// );
 		distributors := CreateTable("distributors")
-		distributors.AddColumn("name").SetType("varchar(40)").Constraint().SetDefault("'Luso Films'")
-		distributors.AddColumn("did").SetType("integer").Constraint().SetDefault("nextval('distributors_serial')")
-		distributors.AddColumn("modtime").SetType("timestamp").Constraint().SetDefault("current_timestamp")
+		distributors.AddColumn("name").Type("varchar(40)").Constraint().Default("'Luso Films'")
+		distributors.AddColumn("did").Type("integer").Constraint().Default("nextval('distributors_serial')")
+		distributors.AddColumn("modtime").Type("timestamp").Constraint().Default("current_timestamp")
 		t.Log(distributors.String())
 		if distributors.String() != "CREATE TABLE distributors (name varchar(40) DEFAULT 'Luso Films', did integer DEFAULT nextval('distributors_serial'), modtime timestamp DEFAULT current_timestamp);" {
 			t.Fatal("wrong literal_default_constraint")
@@ -180,8 +180,8 @@ func TestTable_String(t *testing.T) {
 		//    name    varchar(40) NOT NULL
 		// );
 		distributors := CreateTable("distributors")
-		distributors.AddColumn("did").SetType("integer").Constraint().SetName("no_null").NotNull()
-		distributors.AddColumn("name").SetType("varchar(40)").Constraint().NotNull()
+		distributors.AddColumn("did").Type("integer").Constraint().Name("no_null").NotNull()
+		distributors.AddColumn("name").Type("varchar(40)").Constraint().NotNull()
 		t.Log(distributors.String())
 		if distributors.String() != "CREATE TABLE distributors (did integer CONSTRAINT no_null NOT NULL, name varchar(40) NOT NULL);" {
 			t.Fatal("wrong not_null")
@@ -194,8 +194,8 @@ func TestTable_String(t *testing.T) {
 		//    name    varchar(40) UNIQUE
 		// );
 		distributors := CreateTable("distributors")
-		distributors.AddColumn("did").SetType("integer")
-		distributors.AddColumn("name").SetType("varchar(40)").Constraint().SetUnique()
+		distributors.AddColumn("did").Type("integer")
+		distributors.AddColumn("name").Type("varchar(40)").Constraint().Unique()
 		t.Log(distributors.String())
 		if distributors.String() != "CREATE TABLE distributors (did integer, name varchar(40) UNIQUE);" {
 			t.Fatal("wrong unique column")
@@ -207,8 +207,8 @@ func TestTable_String(t *testing.T) {
 		//    UNIQUE(name)
 		// );
 		distributors = CreateTable("distributors")
-		distributors.AddColumn("did").SetType("integer")
-		distributors.AddColumn("name").SetType("varchar(40)")
+		distributors.AddColumn("did").Type("integer")
+		distributors.AddColumn("name").Type("varchar(40)")
 		distributors.AddConstraint().Unique().Columns().Add("name")
 		t.Log(distributors.String())
 		if distributors.String() != "CREATE TABLE distributors (did integer, name varchar(40), UNIQUE (name));" {
@@ -224,8 +224,8 @@ func TestTable_String(t *testing.T) {
 		// )
 		// WITH (fillfactor=70);
 		distributors := CreateTable("distributors")
-		distributors.AddColumn("did").SetType("integer")
-		distributors.AddColumn("name").SetType("varchar(40)")
+		distributors.AddColumn("did").Type("integer")
+		distributors.AddColumn("name").Type("varchar(40)")
 		unique := distributors.AddConstraint().Unique()
 		unique.Columns().Add("name")
 		unique.IndexParameters().With().Add("fillfactor=70")
@@ -242,8 +242,8 @@ func TestTable_String(t *testing.T) {
 		//    EXCLUDE USING gist (c WITH &&)
 		// );
 		circles := CreateTable("circles")
-		circles.AddColumn("c").SetType("circle")
-		exclude := circles.AddConstraint().Exclude().SetUsing("gist")
+		circles.AddColumn("c").Type("circle")
+		exclude := circles.AddConstraint().Exclude().Using("gist")
 		exclude.ExcludeElement().Expression().Add("c")
 		exclude.With().Add("&&")
 		t.Log(circles.String())
@@ -259,10 +259,10 @@ func TestTable_String(t *testing.T) {
 		//        location text
 		// ) TABLESPACE diskvol1;
 		cinemas := CreateTable("cinemas")
-		cinemas.AddColumn("id").SetType("serial")
-		cinemas.AddColumn("name").SetType("text")
-		cinemas.AddColumn("location").SetType("text")
-		cinemas.SetTableSpace("diskvol1")
+		cinemas.AddColumn("id").Type("serial")
+		cinemas.AddColumn("name").Type("text")
+		cinemas.AddColumn("location").Type("text")
+		cinemas.TableSpace("diskvol1")
 		t.Log(cinemas.String())
 		if cinemas.String() != "CREATE TABLE cinemas (id serial, name text, location text) TABLESPACE diskvol1;" {
 			t.Fatal("wrong tablespace")
@@ -277,10 +277,10 @@ func TestTable_String(t *testing.T) {
 		//    salary WITH OPTIONS DEFAULT 1000
 		// );
 		employees := CreateTable("employees")
-		employees.OfType().SetName("employee_type")
-		employees.OfType().Columns().AddColumn("name").Constraint().SetPrimary()
+		employees.OfType().Name("employee_type")
+		employees.OfType().Columns().AddColumn("name").Constraint().PrimaryKey()
 		salary := employees.OfType().Columns().AddColumn("salary")
-		salary.Constraint().SetDefault("1000")
+		salary.Constraint().Default("1000")
 		salary.WithOptions()
 		t.Log(employees.String())
 		if employees.String() != "CREATE TABLE employees OF employee_type (name PRIMARY KEY, salary WITH OPTIONS DEFAULT 1000);" {
@@ -295,9 +295,9 @@ func TestTable_String(t *testing.T) {
 		//    unitsales       int
 		//) PARTITION BY RANGE (logdate);
 		measurement := CreateTable("measurement")
-		measurement.AddColumn("logdate").SetType("date").Constraint().NotNull()
-		measurement.AddColumn("peaktemp").SetType("int")
-		measurement.AddColumn("unitsales").SetType("int")
+		measurement.AddColumn("logdate").Type("date").Constraint().NotNull()
+		measurement.AddColumn("peaktemp").Type("int")
+		measurement.AddColumn("unitsales").Type("int")
 		measurement.Partition().By(PartitionByRange).Clause("logdate")
 		t.Log(measurement.String())
 		if measurement.String() != "CREATE TABLE measurement (logdate date NOT NULL, peaktemp int, unitsales int) PARTITION BY RANGE (logdate);" {
@@ -310,9 +310,9 @@ func TestTable_String(t *testing.T) {
 		//    unitsales       int
 		//) PARTITION BY RANGE (EXTRACT(YEAR FROM logdate), EXTRACT(MONTH FROM logdate));
 		measurement = CreateTable("measurement_year_month")
-		measurement.AddColumn("logdate").SetType("date").Constraint().NotNull()
-		measurement.AddColumn("peaktemp").SetType("int")
-		measurement.AddColumn("unitsales").SetType("int")
+		measurement.AddColumn("logdate").Type("date").Constraint().NotNull()
+		measurement.AddColumn("peaktemp").Type("int")
+		measurement.AddColumn("unitsales").Type("int")
 		measurement.Partition().By(PartitionByRange).Clause("EXTRACT(YEAR FROM logdate)", "EXTRACT(MONTH FROM logdate)")
 		t.Log(measurement.String())
 		if measurement.String() != "CREATE TABLE measurement_year_month (logdate date NOT NULL, peaktemp int, unitsales int) PARTITION BY RANGE (EXTRACT(YEAR FROM logdate), EXTRACT(MONTH FROM logdate));" {
@@ -327,9 +327,9 @@ func TestTable_String(t *testing.T) {
 		//    status       text
 		// ) PARTITION BY HASH (order_id);
 		orders := CreateTable("orders")
-		orders.AddColumn("order_id").SetType("bigint").Constraint().NotNull()
-		orders.AddColumn("cust_id").SetType("bigint").Constraint().NotNull()
-		orders.AddColumn("status").SetType("text")
+		orders.AddColumn("order_id").Type("bigint").Constraint().NotNull()
+		orders.AddColumn("cust_id").Type("bigint").Constraint().NotNull()
+		orders.AddColumn("status").Type("text")
 		orders.Partition().By(PartitionByHash).Clause("order_id")
 		t.Log(orders.String())
 		if orders.String() != "CREATE TABLE orders (order_id bigint NOT NULL, cust_id bigint NOT NULL, status text) PARTITION BY HASH (order_id);" {
@@ -343,8 +343,8 @@ func TestTable_String(t *testing.T) {
 		//    unitsales DEFAULT 0
 		// ) FOR VALUES FROM ('2016-07-01') TO ('2016-08-01');
 		measurement := CreateTable("measurement_y2016m07")
-		measurement.OfPartition().SetParent("measurement")
-		measurement.OfPartition().Columns().AddColumn("unitsales").Constraint().SetDefault("0")
+		measurement.OfPartition().Parent("measurement")
+		measurement.OfPartition().Columns().AddColumn("unitsales").Constraint().Default("0")
 		measurement.OfPartition().Values().From().Add("'2016-07-01'")
 		measurement.OfPartition().Values().To().Add("'2016-08-01'")
 		t.Log(measurement.String())
@@ -356,7 +356,7 @@ func TestTable_String(t *testing.T) {
 		//    PARTITION OF measurement_year_month
 		//    FOR VALUES FROM (MINVALUE, MINVALUE) TO (2016, 11);
 		measurement = CreateTable("measurement_ym_older")
-		measurement.OfPartition().SetParent("measurement_year_month")
+		measurement.OfPartition().Parent("measurement_year_month")
 		measurement.OfPartition().Values().From().Add(PartitionBoundFromMin, PartitionBoundFromMin)
 		measurement.OfPartition().Values().To().Add("2016", "11")
 		t.Log(measurement.String())
@@ -369,8 +369,8 @@ func TestTable_String(t *testing.T) {
 		//    CONSTRAINT city_id_nonzero CHECK (city_id != 0)
 		// ) FOR VALUES IN ('a', 'b');
 		cities := CreateTable("cities_ab")
-		cities.OfPartition().SetParent("cities")
-		cities.OfPartition().Columns().AddConstraint().SetName("city_id_nonzero").Check().AddExpression("city_id != 0")
+		cities.OfPartition().Parent("cities")
+		cities.OfPartition().Columns().AddConstraint().Name("city_id_nonzero").Check().AddExpression("city_id != 0")
 		cities.OfPartition().Values().In().Add("'a'", "'b'")
 		t.Log(cities.String())
 		if cities.String() != "CREATE TABLE cities_ab PARTITION OF cities (CONSTRAINT city_id_nonzero CHECK (city_id != 0)) FOR VALUES IN ('a', 'b');" {
@@ -382,8 +382,8 @@ func TestTable_String(t *testing.T) {
 		//    CONSTRAINT city_id_nonzero CHECK (city_id != 0)
 		// ) FOR VALUES IN ('a', 'b') PARTITION BY RANGE (population);
 		cities = CreateTable("cities_ab")
-		cities.OfPartition().SetParent("cities")
-		cities.OfPartition().Columns().AddConstraint().SetName("city_id_nonzero").Check().AddExpression("city_id != 0")
+		cities.OfPartition().Parent("cities")
+		cities.OfPartition().Columns().AddConstraint().Name("city_id_nonzero").Check().AddExpression("city_id != 0")
 		cities.OfPartition().Values().In().Add("'a'", "'b'")
 		cities.Partition().By(PartitionByRange).Clause("population")
 		t.Log(cities.String())
@@ -394,8 +394,8 @@ func TestTable_String(t *testing.T) {
 		// CREATE TABLE cities_ab_10000_to_100000
 		//    PARTITION OF cities_ab FOR VALUES FROM (10000) TO (100000);
 		citiesAb := CreateTable("cities_ab_10000_to_100000")
-		citiesAb.OfPartition().SetParent("cities_ab").Values().From().Add("10000")
-		citiesAb.OfPartition().SetParent("cities_ab").Values().To().Add("100000")
+		citiesAb.OfPartition().Parent("cities_ab").Values().From().Add("10000")
+		citiesAb.OfPartition().Parent("cities_ab").Values().To().Add("100000")
 		t.Log(citiesAb.String())
 		if citiesAb.String() != "CREATE TABLE cities_ab_10000_to_100000 PARTITION OF cities_ab FOR VALUES FROM (10000) TO (100000);" {
 			t.Fatal("wrong partition_of cities_ab")
@@ -404,7 +404,7 @@ func TestTable_String(t *testing.T) {
 		// CREATE TABLE orders_p1 PARTITION OF orders
 		//    FOR VALUES WITH (MODULUS 4, REMAINDER 0);
 		ordersP1 := CreateTable("orders_p1")
-		ordersP1.OfPartition().SetParent("orders")
+		ordersP1.OfPartition().Parent("orders")
 		ordersP1.OfPartition().Values().With().Add(PartitionBoundWithModulus+" 4", PartitionBoundWithRemainder+" 0")
 		t.Log(ordersP1.String())
 		if ordersP1.String() != "CREATE TABLE orders_p1 PARTITION OF orders FOR VALUES WITH (MODULUS 4, REMAINDER 0);" {
@@ -414,7 +414,7 @@ func TestTable_String(t *testing.T) {
 		// CREATE TABLE orders_p2 PARTITION OF orders
 		//    FOR VALUES WITH (MODULUS 4, REMAINDER 1);
 		ordersP2 := CreateTable("orders_p1")
-		ordersP2.OfPartition().SetParent("orders")
+		ordersP2.OfPartition().Parent("orders")
 		ordersP2.OfPartition().Values().With().Add(PartitionBoundWithModulus+" 4", PartitionBoundWithRemainder+" 1")
 		t.Log(ordersP2.String())
 		if ordersP2.String() != "CREATE TABLE orders_p1 PARTITION OF orders FOR VALUES WITH (MODULUS 4, REMAINDER 1);" {
@@ -424,7 +424,7 @@ func TestTable_String(t *testing.T) {
 		// CREATE TABLE cities_partdef
 		//    PARTITION OF cities DEFAULT;
 		citiesPartdef := CreateTable("cities_partdef")
-		citiesPartdef.OfPartition().SetParent("cities")
+		citiesPartdef.OfPartition().Parent("cities")
 		t.Log(citiesPartdef.String())
 		if citiesPartdef.String() != "CREATE TABLE cities_partdef PARTITION OF cities DEFAULT;" {
 			t.Fatal("wrong partition_of cities_partdef")

@@ -55,7 +55,7 @@ func (c *ofDefinitions) AddConstraint() *constraintTable {
 // AddColumn add column definition
 func (c *ofDefinitions) AddColumn(name string) *ofColumn {
 	def, _ := c.Add()
-	return def.Column().SetName(name)
+	return def.Column().Name(name)
 }
 
 //  OF type_name [ (
@@ -70,20 +70,9 @@ type ofType struct {
 	ofDefinitions ofDefinitions
 }
 
-// SetName set name
-func (t *ofType) SetName(name string) *ofType {
+// Name set name
+func (t *ofType) Name(name string) *ofType {
 	t.name = name
-	return t
-}
-
-// GetName get name
-func (t *ofType) GetName() string {
-	return t.name
-}
-
-// ResetName reset name
-func (t *ofType) ResetName() *ofType {
-	t.name = ""
 	return t
 }
 
@@ -161,20 +150,9 @@ type ofColumn struct {
 	constraint constraintColumn
 }
 
-// SetName set name
-func (c *ofColumn) SetName(name string) *ofColumn {
+// Name set name
+func (c *ofColumn) Name(name string) *ofColumn {
 	c.name = name
-	return c
-}
-
-// GetName get name
-func (c *ofColumn) GetName() string {
-	return c.name
-}
-
-// ResetName reset name
-func (c *ofColumn) ResetName() *ofColumn {
-	c.name = ""
 	return c
 }
 

@@ -17,71 +17,27 @@ type excludeElement struct {
 	nulls *string
 }
 
-// SetColumn set column name
-func (e *excludeElement) SetColumn(column string) *excludeElement {
+// Column set column name
+func (e *excludeElement) Column(column string) *excludeElement {
 	e.column = column
 	return e
 }
 
-// GetColumn get column name
-func (e *excludeElement) GetColumn() string {
-	return e.column
-}
-
-// ResetColumn set column to empty
-func (e *excludeElement) ResetColumn() *excludeElement {
-	e.column = ""
-	return e
-}
-
-// SetOpClass set opclass
-func (e *excludeElement) SetOpClass(opclass string) *excludeElement {
+// OpClass set opclass
+func (e *excludeElement) OpClass(opclass string) *excludeElement {
 	e.opclass = opclass
 	return e
 }
 
-// GetOpClass get opclass
-func (e *excludeElement) GetOpClass() string {
-	return e.opclass
-}
-
-// ResetOpClass set opclass to empty
-func (e *excludeElement) ResetOpClass() *excludeElement {
-	e.opclass = ""
-	return e
-}
-
-// SetDirection set direction
-func (e *excludeElement) SetDirection(direction string) *excludeElement {
+// Direction set direction
+func (e *excludeElement) Direction(direction string) *excludeElement {
 	e.direction = direction
 	return e
 }
 
-// GetDirection get direction
-func (e *excludeElement) GetDirection() string {
-	return e.direction
-}
-
-// ResetDirection set direction to empty
-func (e *excludeElement) ResetDirection() *excludeElement {
-	e.direction = ""
-	return e
-}
-
-// SetNulls set nulls
-func (e *excludeElement) SetNulls(nulls *string) *excludeElement {
+// Nulls set nulls
+func (e *excludeElement) Nulls(nulls *string) *excludeElement {
 	e.nulls = nulls
-	return e
-}
-
-// GetNulls get nulls
-func (e *excludeElement) GetNulls() *string {
-	return e.nulls
-}
-
-// ResetNulls reset null
-func (e *excludeElement) ResetNulls() *excludeElement {
-	e.nulls = nil
 	return e
 }
 

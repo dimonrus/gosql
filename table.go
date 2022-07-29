@@ -221,34 +221,23 @@ func (t *Table) String() string {
 	return b.String() + ";"
 }
 
-// SetUsing set using
-func (t *Table) SetUsing(using string) *Table {
+// Using set using
+func (t *Table) Using(using string) *Table {
 	t.using = using
-	return t
-}
-
-// GetUsing get using
-func (t *Table) GetUsing() string {
-	return t.using
-}
-
-// ResetUsing reset using
-func (t *Table) ResetUsing() *Table {
-	t.using = ""
 	return t
 }
 
 // AddColumn add column
 func (t *Table) AddColumn(name string) *column {
 	def, _ := t.definitions.Add()
-	return def.Column().SetName(name)
+	return def.Column().Name(name)
 }
 
 // AddForeignKey add foreign key
 func (t *Table) AddForeignKey(target string, columns ...string) *foreignKey {
 	fk := t.definitions.AddConstraint().ForeignKey()
 	fk.Columns().Add(columns...)
-	fk.References().SetRefTable(target)
+	fk.References().RefTable(target)
 	fk.References().Columns().Add(columns...)
 	return fk
 }
@@ -285,20 +274,9 @@ func (t *Table) OfPartition() *ofPartition {
 	return &t.ofPartition
 }
 
-// SetOnCommit set onCommit
-func (t *Table) SetOnCommit(onCommit string) *Table {
+// OnCommit set onCommit
+func (t *Table) OnCommit(onCommit string) *Table {
 	t.onCommit = onCommit
-	return t
-}
-
-// GetOnCommit get onCommit
-func (t *Table) GetOnCommit() string {
-	return t.onCommit
-}
-
-// ResetOnCommit reset onCommit
-func (t *Table) ResetOnCommit() *Table {
-	t.onCommit = ""
 	return t
 }
 
@@ -320,32 +298,16 @@ func (t *Table) Temp() *Table {
 	return t
 }
 
-// SetScope set scope
-func (t *Table) SetScope(scope string) *Table {
+// Scope set scope
+func (t *Table) Scope(scope string) *Table {
 	t.scope = scope
 	return t
 }
 
-// GetScope get scope
-func (t *Table) GetScope() string {
-	return t.scope
-}
-
-// ResetScope reset scope
-func (t *Table) ResetScope() *Table {
-	t.scope = ""
-	return t
-}
-
-// SetName Set name
-func (t *Table) SetName(name string) *Table {
+// Name Set name
+func (t *Table) Name(name string) *Table {
 	t.name = name
 	return t
-}
-
-// GetName get name
-func (t *Table) GetName() string {
-	return t.name
 }
 
 // Inherits inherit form tables
@@ -353,20 +315,9 @@ func (t *Table) Inherits() *expression {
 	return &t.inherits
 }
 
-// SetTableSpace set table space
-func (t *Table) SetTableSpace(space string) *Table {
+// TableSpace set table space
+func (t *Table) TableSpace(space string) *Table {
 	t.tablespace = space
-	return t
-}
-
-// GetTableSpace get table space
-func (t *Table) GetTableSpace() string {
-	return t.tablespace
-}
-
-// ResetTableSpace reset table space
-func (t *Table) ResetTableSpace() *Table {
-	t.tablespace = ""
 	return t
 }
 

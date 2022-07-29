@@ -39,20 +39,9 @@ type constraintColumn struct {
 	initially string
 }
 
-// SetName set name
-func (c *constraintColumn) SetName(name string) *constraintColumn {
+// Name set name
+func (c *constraintColumn) Name(name string) *constraintColumn {
 	c.name = name
-	return c
-}
-
-// GetName get name
-func (c *constraintColumn) GetName() string {
-	return c.name
-}
-
-// ResetName reset name
-func (c *constraintColumn) ResetName() *constraintColumn {
-	c.name = ""
 	return c
 }
 
@@ -67,20 +56,9 @@ func (c *constraintColumn) Check() *detailedExpression {
 	return &c.check
 }
 
-// SetDefault set default
-func (c *constraintColumn) SetDefault(def string) *constraintColumn {
+// Default set default
+func (c *constraintColumn) Default(def string) *constraintColumn {
 	c.def = def
-	return c
-}
-
-// GetDefault get default
-func (c *constraintColumn) GetDefault() string {
-	return c.def
-}
-
-// ResetDefault reset default
-func (c *constraintColumn) ResetDefault() *constraintColumn {
-	c.def = ""
 	return c
 }
 
@@ -94,14 +72,14 @@ func (c *constraintColumn) Generated() *detailedExpression {
 	return &c.generated
 }
 
-// SetUnique set unique
-func (c *constraintColumn) SetUnique() *indexParameters {
+// Unique set unique
+func (c *constraintColumn) Unique() *indexParameters {
 	c.unique = NewIndexParameters()
 	return c.unique
 }
 
-// SetPrimary set primary
-func (c *constraintColumn) SetPrimary() *indexParameters {
+// PrimaryKey set primary
+func (c *constraintColumn) PrimaryKey() *indexParameters {
 	c.primary = NewIndexParameters()
 	return c.primary
 }
@@ -111,26 +89,15 @@ func (c *constraintColumn) References() *referencesColumn {
 	return &c.references
 }
 
-// SetDeferrable set deferrable
-func (c *constraintColumn) SetDeferrable(deferrable *bool) *constraintColumn {
+// Deferrable set deferrable
+func (c *constraintColumn) Deferrable(deferrable *bool) *constraintColumn {
 	c.deferrable = deferrable
 	return c
 }
 
-// SetInitially set initially
-func (c *constraintColumn) SetInitially(initially string) *constraintColumn {
+// Initially set initially
+func (c *constraintColumn) Initially(initially string) *constraintColumn {
 	c.initially = initially
-	return c
-}
-
-// GetInitially get initially
-func (c *constraintColumn) GetInitially() string {
-	return c.initially
-}
-
-// ResetInitially reset initially
-func (c *constraintColumn) ResetInitially() *constraintColumn {
-	c.initially = ""
 	return c
 }
 

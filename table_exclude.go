@@ -16,20 +16,9 @@ type excludeTable struct {
 	where Condition
 }
 
-// SetUsing set using
-func (e *excludeTable) SetUsing(using string) *excludeTable {
+// Using set using
+func (e *excludeTable) Using(using string) *excludeTable {
 	e.using = using
-	return e
-}
-
-// GetUsing get using
-func (e *excludeTable) GetUsing() string {
-	return e.using
-}
-
-// ResetUsing reset using
-func (e *excludeTable) ResetUsing() *excludeTable {
-	e.using = ""
 	return e
 }
 

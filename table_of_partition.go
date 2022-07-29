@@ -16,20 +16,9 @@ type ofPartition struct {
 	values partitionBound
 }
 
-// SetParent set parent
-func (p *ofPartition) SetParent(parent string) *ofPartition {
+// Parent set parent
+func (p *ofPartition) Parent(parent string) *ofPartition {
 	p.parent = parent
-	return p
-}
-
-// GetParent get parent
-func (p *ofPartition) GetParent() string {
-	return p.parent
-}
-
-// ResetParent reset parent
-func (p *ofPartition) ResetParent() *ofPartition {
-	p.parent = ""
 	return p
 }
 

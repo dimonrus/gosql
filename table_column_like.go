@@ -10,20 +10,9 @@ type likeTable struct {
 	options expression
 }
 
-// SetSource set source
-func (l *likeTable) SetSource(source string) *likeTable {
+// Source set source
+func (l *likeTable) Source(source string) *likeTable {
 	l.source = source
-	return l
-}
-
-// GetSource get source
-func (l *likeTable) GetSource() string {
-	return l.source
-}
-
-// ResetSource reset source
-func (l *likeTable) ResetSource() *likeTable {
-	l.source = ""
 	return l
 }
 

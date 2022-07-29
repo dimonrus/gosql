@@ -24,20 +24,9 @@ func (i *indexParameters) Include() *expression {
 	return &i.include
 }
 
-// SetTableSpace set tableSpace
-func (i *indexParameters) SetTableSpace(tableSpace string) *indexParameters {
+// TableSpace set tableSpace
+func (i *indexParameters) TableSpace(tableSpace string) *indexParameters {
 	i.tableSpace = tableSpace
-	return i
-}
-
-// GetTableSpace get tableSpace
-func (i *indexParameters) GetTableSpace() string {
-	return i.tableSpace
-}
-
-// ResetTableSpace reset tableSpace
-func (i *indexParameters) ResetTableSpace() *indexParameters {
-	i.tableSpace = ""
 	return i
 }
 

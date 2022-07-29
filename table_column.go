@@ -16,71 +16,27 @@ type column struct {
 	constraint constraintColumn
 }
 
-// SetCollate set sort rule
-func (c *column) SetCollate(collation string) *column {
+// Collate set sort rule
+func (c *column) Collate(collation string) *column {
 	c.collate = collation
 	return c
 }
 
-// GetCollate get sort rule
-func (c *column) GetCollate() string {
-	return c.collate
-}
-
-// ResetCollate set sort rule to empty
-func (c *column) ResetCollate() *column {
-	c.collate = ""
-	return c
-}
-
-// SetCompression set compression method
-func (c *column) SetCompression(method string) *column {
+// Compression set compression method
+func (c *column) Compression(method string) *column {
 	c.compression = method
 	return c
 }
 
-// GetCompression get compression method
-func (c *column) GetCompression() string {
-	return c.compression
-}
-
-// ResetCompression set compression method to empty
-func (c *column) ResetCompression() *column {
-	c.compression = ""
-	return c
-}
-
-// SetName set column name
-func (c *column) SetName(name string) *column {
+// Name set column name
+func (c *column) Name(name string) *column {
 	c.name = name
 	return c
 }
 
-// GetName get column name
-func (c *column) GetName() string {
-	return c.name
-}
-
-// ResetName reset name
-func (c *column) ResetName() *column {
-	c.name = ""
-	return c
-}
-
-// SetType set column type
-func (c *column) SetType(dataType string) *column {
+// Type set column type
+func (c *column) Type(dataType string) *column {
 	c.dataType = dataType
-	return c
-}
-
-// GetType get column type
-func (c *column) GetType() string {
-	return c.dataType
-}
-
-// ResetType reset type
-func (c *column) ResetType() *column {
-	c.dataType = ""
 	return c
 }
 

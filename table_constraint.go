@@ -29,20 +29,9 @@ type constraintTable struct {
 	initially string
 }
 
-// SetName set name
-func (c *constraintTable) SetName(name string) *constraintTable {
+// Name set name
+func (c *constraintTable) Name(name string) *constraintTable {
 	c.name = name
-	return c
-}
-
-// GetName get name
-func (c *constraintTable) GetName() string {
-	return c.name
-}
-
-// ResetName reset name
-func (c *constraintTable) ResetName() *constraintTable {
-	c.name = ""
 	return c
 }
 
@@ -74,26 +63,15 @@ func (c *constraintTable) ForeignKey() *foreignKey {
 	return &c.foreignKey
 }
 
-// SetDeferrable set deferrable
-func (c *constraintTable) SetDeferrable(deferrable *bool) *constraintTable {
+// Deferrable set deferrable
+func (c *constraintTable) Deferrable(deferrable *bool) *constraintTable {
 	c.deferrable = deferrable
 	return c
 }
 
-// SetInitially set initially
-func (c *constraintTable) SetInitially(initially string) *constraintTable {
+// Initially set initially
+func (c *constraintTable) Initially(initially string) *constraintTable {
 	c.initially = initially
-	return c
-}
-
-// GetInitially get initially
-func (c *constraintTable) GetInitially() string {
-	return c.initially
-}
-
-// ResetInitially reset initially
-func (c *constraintTable) ResetInitially() *constraintTable {
-	c.initially = ""
 	return c
 }
 

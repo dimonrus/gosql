@@ -16,20 +16,9 @@ type referencesColumn struct {
 	delete string
 }
 
-// SetRefTable set reference table
-func (r *referencesColumn) SetRefTable(table string) *referencesColumn {
+// RefTable set reference table
+func (r *referencesColumn) RefTable(table string) *referencesColumn {
 	r.target = table
-	return r
-}
-
-// GetRefTable get reference table
-func (r *referencesColumn) GetRefTable() string {
-	return r.target
-}
-
-// ResetRefTable reset reference table
-func (r *referencesColumn) ResetRefTable() *referencesColumn {
-	r.target = ""
 	return r
 }
 
@@ -38,54 +27,21 @@ func (r *referencesColumn) Columns() *expression {
 	return &r.column
 }
 
-// SetMatch set match
-func (r *referencesColumn) SetMatch(match string) *referencesColumn {
+// Match set match
+func (r *referencesColumn) Match(match string) *referencesColumn {
 	r.match = match
 	return r
 }
 
-// GetMatch get match
-func (r *referencesColumn) GetMatch() string {
-	return r.match
-}
-
-// ResetMatch reset match
-func (r *referencesColumn) ResetMatch() *referencesColumn {
-	r.match = ""
-	return r
-}
-
-// SetOnUpdate set on update
-func (r *referencesColumn) SetOnUpdate(update string) *referencesColumn {
+// OnUpdate set on update
+func (r *referencesColumn) OnUpdate(update string) *referencesColumn {
 	r.update = update
 	return r
 }
 
-// GetOnUpdate get on update
-func (r *referencesColumn) GetOnUpdate() string {
-	return r.update
-}
-
-// ResetOnUpdate reset on update
-func (r *referencesColumn) ResetOnUpdate() *referencesColumn {
-	r.update = ""
-	return r
-}
-
-// SetOnDelete set on delete
-func (r *referencesColumn) SetOnDelete(delete string) *referencesColumn {
+// OnDelete set on delete
+func (r *referencesColumn) OnDelete(delete string) *referencesColumn {
 	r.delete = delete
-	return r
-}
-
-// GetOnDelete get on delete
-func (r *referencesColumn) GetOnDelete() string {
-	return r.delete
-}
-
-// ResetOnDelete reset on delete
-func (r *referencesColumn) ResetOnDelete() *referencesColumn {
-	r.delete = ""
 	return r
 }
 

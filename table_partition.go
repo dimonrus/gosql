@@ -16,37 +16,15 @@ func (p *partitionColumn) Expression() *expression {
 	return &p.expression
 }
 
-// SetCollate set sort rule
-func (p *partitionColumn) SetCollate(collation string) *partitionColumn {
+// Collate set sort rule
+func (p *partitionColumn) Collate(collation string) *partitionColumn {
 	p.collate = collation
 	return p
 }
 
-// GetCollate get sort rule
-func (p *partitionColumn) GetCollate() string {
-	return p.collate
-}
-
-// ResetCollate set sort rule to empty
-func (p *partitionColumn) ResetCollate() *partitionColumn {
-	p.collate = ""
-	return p
-}
-
-// SetOpClass set opclass
-func (p *partitionColumn) SetOpClass(opclass string) *partitionColumn {
+// OpClass set opclass
+func (p *partitionColumn) OpClass(opclass string) *partitionColumn {
 	p.opclass = opclass
-	return p
-}
-
-// GetOpClass get opclass
-func (p *partitionColumn) GetOpClass() string {
-	return p.opclass
-}
-
-// ResetOpClass set opclass to empty
-func (p *partitionColumn) ResetOpClass() *partitionColumn {
-	p.opclass = ""
 	return p
 }
 
