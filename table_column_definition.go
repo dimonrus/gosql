@@ -34,6 +34,26 @@ func (c *columnDefinitions) Add() (def *columnDefinition, n int) {
 	return
 }
 
+// Swap definitions
+func (c *columnDefinitions) Swap() {
+	if c == nil || len(*c) == 0 {
+		return
+	}
+	var i, j int
+	j = len(*c) - 1
+	for {
+		if i == j || i-1 == j {
+			break
+		}
+		buf := (*c)[i]
+		(*c)[i] = (*c)[j]
+		(*c)[j] = buf
+		i++
+		j--
+	}
+	return
+}
+
 // Remove definition by n
 func (c *columnDefinitions) Remove(n int) *columnDefinitions {
 	*c = append((*c)[:n], (*c)[n+1:]...)

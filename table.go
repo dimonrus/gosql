@@ -186,8 +186,12 @@ func (t *Table) String() string {
 	} else if t.unLogged {
 		b.WriteString(" UNLOGGED")
 	}
+	b.WriteString(" TABLE")
+	if t.ifNotExists {
+		b.WriteString(" IF NOT EXISTS")
+	}
 	if t.name != "" {
-		b.WriteString(" TABLE " + t.name)
+		b.WriteString(" " + t.name)
 	}
 	if t.definitions.Len() > 0 {
 		b.WriteString(" (" + t.definitions.String() + ")")
@@ -225,6 +229,11 @@ func (t *Table) String() string {
 func (t *Table) Using(using string) *Table {
 	t.using = using
 	return t
+}
+
+// Definitions return column definitions
+func (t *Table) Definitions() *columnDefinitions {
+	return &t.definitions
 }
 
 // AddColumn add column
@@ -308,6 +317,11 @@ func (t *Table) Scope(scope string) *Table {
 func (t *Table) Name(name string) *Table {
 	t.name = name
 	return t
+}
+
+// GetName get name of table
+func (t *Table) GetName() string {
+	return t.name
 }
 
 // Inherits inherit form tables

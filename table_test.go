@@ -431,3 +431,86 @@ func TestTable_String(t *testing.T) {
 		}
 	})
 }
+
+func TestTable_Definitions_Swap(t *testing.T) {
+	t.Run("odd", func(t *testing.T) {
+		films := CreateTable("films")
+		films.AddColumn("code").Type("char(5)")
+		films.AddColumn("title").Type("varchar(40)")
+		films.AddColumn("did").Type("integer")
+		films.AddColumn("date_prod").Type("date")
+		films.AddColumn("kind").Type("varchar(10)")
+		films.Definitions().Swap()
+		t.Log(films.String())
+		if films.String() != "CREATE TABLE films (kind varchar(10), date_prod date, did integer, title varchar(40), code char(5));" {
+			t.Fatal("wrong odd")
+		}
+	})
+	t.Run("even", func(t *testing.T) {
+		films := CreateTable("films")
+		films.AddColumn("code").Type("char(5)")
+		films.AddColumn("title").Type("varchar(40)")
+		films.AddColumn("did").Type("integer")
+		films.AddColumn("date_prod").Type("date")
+		films.AddColumn("kind").Type("varchar(10)")
+		films.AddColumn("len").Type("interval hour to minute")
+		films.Definitions().Swap()
+		t.Log(films.String())
+		if films.String() != "CREATE TABLE films (len interval hour to minute, kind varchar(10), date_prod date, did integer, title varchar(40), code char(5));" {
+			t.Fatal("wrong even")
+		}
+	})
+	t.Run("empty", func(t *testing.T) {
+		films := CreateTable("films")
+		films.Definitions().Swap()
+		t.Log(films.String())
+		if films.String() != "CREATE TABLE films;" {
+			t.Fatal("empty")
+		}
+	})
+	t.Run("one", func(t *testing.T) {
+		films := CreateTable("films")
+		films.AddColumn("code").Type("char(5)")
+		films.Definitions().Swap()
+		t.Log(films.String())
+		if films.String() != "CREATE TABLE films (code char(5));" {
+			t.Fatal("empty")
+		}
+	})
+	t.Run("two", func(t *testing.T) {
+		films := CreateTable("films")
+		films.AddColumn("code").Type("char(5)")
+		films.AddColumn("title").Type("varchar(40)")
+		films.Definitions().Swap()
+		t.Log(films.String())
+		if films.String() != "CREATE TABLE films (title varchar(40), code char(5));" {
+			t.Fatal("empty")
+		}
+	})
+}
+
+func TestTableModeler(t *testing.T) {
+	// init table
+	table := CreateTable("custom").IfNotExists()
+	// add primary key
+	addId := func(tb *Table) {
+		tb.AddColumn("id").Type("serial").Constraint().NotNull().PrimaryKey()
+	}
+	// add timestamps columns
+	addSystemColumns := func(tb *Table) {
+		tb.AddColumn("created_at").Type("TIMESTAMP WITH TIME ZONE").Constraint().NotNull().Default("localtimestamp")
+		tb.AddColumn("updated_at").Type("TIMESTAMP WITH TIME ZONE")
+		tb.AddColumn("deleted_at").Type("TIMESTAMP WITH TIME ZONE")
+	}
+	// add custom columns
+	addCustomColumns := func(tb *Table) {
+		tb.AddColumn("name").Type("TEXT")
+		tb.AddColumn("type_id").Type("INT").Constraint().NotNull()
+	}
+	// prepare table
+	TableModeler{addId, addCustomColumns, addSystemColumns}.Prepare(table)
+	t.Log(table.String())
+	if table.String() != "CREATE TABLE IF NOT EXISTS custom (id serial NOT NULL PRIMARY KEY, name TEXT, type_id INT NOT NULL, created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT localtimestamp, updated_at TIMESTAMP WITH TIME ZONE, deleted_at TIMESTAMP WITH TIME ZONE);" {
+		t.Fatal("wrong modeler")
+	}
+}
