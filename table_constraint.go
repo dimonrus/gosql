@@ -37,7 +37,7 @@ func (c *constraintTable) Name(name string) *constraintTable {
 
 // Check get check expression
 func (c *constraintTable) Check() *Condition {
-	if c.check.IsEmpty() {
+	if c.check == nil {
 		c.check = NewSqlCondition(ConditionOperatorAnd)
 	}
 	return c.check
@@ -122,9 +122,4 @@ func (c *constraintTable) String() string {
 		b.WriteString(" INITIALLY " + c.initially)
 	}
 	return b.String()[1:]
-}
-
-// NewConstraintTable init table constraint
-func NewConstraintTable() *constraintTable {
-	return &constraintTable{check: NewSqlCondition(ConditionOperatorAnd)}
 }

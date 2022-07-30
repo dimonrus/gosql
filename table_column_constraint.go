@@ -74,13 +74,13 @@ func (c *constraintColumn) Generated() *detailedExpression {
 
 // Unique set unique
 func (c *constraintColumn) Unique() *indexParameters {
-	c.unique = NewIndexParameters()
+	c.unique = &indexParameters{}
 	return c.unique
 }
 
 // PrimaryKey set primary
 func (c *constraintColumn) PrimaryKey() *indexParameters {
-	c.primary = NewIndexParameters()
+	c.primary = &indexParameters{}
 	return c.primary
 }
 
@@ -163,9 +163,4 @@ func (c *constraintColumn) IsEmpty() bool {
 		c.references.IsEmpty() &&
 		c.deferrable == nil &&
 		c.initially == "")
-}
-
-// NewConstraintColumn init column constraint
-func NewConstraintColumn() *constraintColumn {
-	return &constraintColumn{}
 }

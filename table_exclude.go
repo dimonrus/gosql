@@ -13,7 +13,7 @@ type excludeTable struct {
 	// index parameters
 	indexParameters indexParameters
 	// where condition
-	where Condition
+	where *Condition
 }
 
 // Using set using
@@ -39,7 +39,10 @@ func (e *excludeTable) IndexParameters() *indexParameters {
 
 // Where condition
 func (e *excludeTable) Where() *Condition {
-	return &e.where
+	if e.where == nil {
+		e.where = NewSqlCondition(ConditionOperatorAnd)
+	}
+	return e.where
 }
 
 // IsEmpty check if empty return true
@@ -73,9 +76,4 @@ func (e *excludeTable) String() string {
 		b.WriteString(" WHERE " + e.where.String())
 	}
 	return b.String()
-}
-
-// NewExcludeTable Init exclude table
-func NewExcludeTable() *excludeTable {
-	return &excludeTable{where: *NewSqlCondition(ConditionOperatorAnd)}
 }

@@ -4,8 +4,7 @@ import "testing"
 
 func TestDelete_String(t *testing.T) {
 	t.Run("simple", func(t *testing.T) {
-		d := NewDelete()
-		d.From("films")
+		d := NewDelete().From("films")
 		d.Where().AddExpression("kind <> ?", "Musical")
 		t.Log(d.String())
 		if d.String() != "DELETE FROM films WHERE (kind <> ?);" || len(d.Where().GetArguments()) != 1 {
@@ -14,8 +13,7 @@ func TestDelete_String(t *testing.T) {
 	})
 
 	t.Run("simple_1", func(t *testing.T) {
-		d := NewDelete()
-		d.From("films")
+		d := NewDelete().From("films")
 		t.Log(d.String())
 		if d.String() != "DELETE FROM films;" {
 			t.Fatal("wrong simple_1")

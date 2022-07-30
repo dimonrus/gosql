@@ -73,8 +73,3 @@ func (e *excludeElement) String() string {
 func (e *excludeElement) IsEmpty() bool {
 	return e == nil || (e.column == "" && e.expression.Len() == 0 && e.opclass == "" && e.direction == "" && e.nulls == nil)
 }
-
-// NewExcludeElement init exclude element
-func NewExcludeElement() *excludeElement {
-	return &excludeElement{}
-}

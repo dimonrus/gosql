@@ -52,8 +52,3 @@ func (i *indexParameters) String() string {
 func (i *indexParameters) IsEmpty() bool {
 	return i == nil || (i.tableSpace == "" && i.include.Len() == 0 && i.with.Len() == 0)
 }
-
-// NewIndexParameters init index params
-func NewIndexParameters() *indexParameters {
-	return &indexParameters{}
-}

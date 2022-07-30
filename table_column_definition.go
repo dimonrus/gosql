@@ -132,8 +132,3 @@ func (d *columnDefinition) String() string {
 	}
 	return b.String()
 }
-
-// NewColumnDefinition init definition
-func NewColumnDefinition() *columnDefinition {
-	return &columnDefinition{}
-}

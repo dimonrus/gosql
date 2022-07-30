@@ -41,8 +41,3 @@ func (f *foreignKey) String() string {
 func (f *foreignKey) IsEmpty() bool {
 	return f == nil || (f.columns.Len() == 0 && f.referencesColumn.IsEmpty())
 }
-
-// NewForeignKey init foreign key
-func NewForeignKey() *foreignKey {
-	return &foreignKey{}
-}

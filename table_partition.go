@@ -51,11 +51,6 @@ func (p *partitionColumn) String() string {
 	return b.String()
 }
 
-// NewPartitionColumn init partition column
-func NewPartitionColumn() *partitionColumn {
-	return &partitionColumn{}
-}
-
 // [ PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
 type partitionTable struct {
 	// type of partition

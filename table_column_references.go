@@ -75,8 +75,3 @@ func (r *referencesColumn) String() string {
 	}
 	return b.String()
 }
-
-// NewReferenceColumn init ref column
-func NewReferenceColumn() *referencesColumn {
-	return &referencesColumn{}
-}

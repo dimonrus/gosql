@@ -39,8 +39,3 @@ func (i *columnIndexParameters) String() string {
 func (i *columnIndexParameters) IsEmpty() bool {
 	return i == nil || (i.columns.Len() == 0 && i.indexParameters.IsEmpty())
 }
-
-// NewColumnIndexParameters new column index parameters
-func NewColumnIndexParameters() *columnIndexParameters {
-	return &columnIndexParameters{}
-}

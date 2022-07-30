@@ -4,7 +4,7 @@ import "testing"
 
 func TestReferencesColumn_String(t *testing.T) {
 	t.Run("classic", func(t *testing.T) {
-		ref := NewReferenceColumn()
+		ref := &referencesColumn{}
 		ref.RefTable("user")
 		ref.OnDelete("CASCADE")
 		ref.OnUpdate("CASCADE")
@@ -16,7 +16,7 @@ func TestReferencesColumn_String(t *testing.T) {
 		}
 	})
 	t.Run("restrict_delete", func(t *testing.T) {
-		ref := NewReferenceColumn()
+		ref := &referencesColumn{}
 		ref.RefTable("user")
 		ref.OnDelete("RESTRICT")
 		ref.Columns().Add("other_id")
@@ -27,7 +27,7 @@ func TestReferencesColumn_String(t *testing.T) {
 		}
 	})
 	t.Run("simple", func(t *testing.T) {
-		ref := NewReferenceColumn()
+		ref := &referencesColumn{}
 		ref.RefTable("user")
 		ref.Columns().Add("other_id")
 		t.Log(ref.String())

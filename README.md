@@ -408,7 +408,47 @@ COMMENT ON TABLE table_name IS 'The table comment';
 c := gosql.Comment().Table("table_name", "The table comment")
 ```
 
-#### By expressing support to the author, you thereby motivate me to continue working on libraries and developing projects
+### Delete query (support full [PG14 SQL specification](https://www.postgresql.org/docs/current/sql-delete.html)) examples
+
+###### Delete with condition
+```
+DELETE FROM films WHERE (kind <> ?);
+
+d := NewDelete().From("films")
+d.Where().AddExpression("kind <> ?", "Musical")
+```
+
+###### Delete all from table
+```
+DELETE FROM films;
+
+d := NewDelete().From("films")
+```
+
+###### Delete with condition returning all
+```
+DELETE FROM tasks WHERE (status = ?) RETURNING *;
+
+d := NewDelete().From("tasks")
+d.Returning().Add("*")
+d.Where().AddExpression("status = ?", "DONE")
+```
+
+###### Delete where sub query
+```
+DELETE FROM tasks WHERE (producer_id IN (SELECT id FROM producers WHERE (name = ?)));
+
+sub := NewSelect()
+sub.Columns().Add("id")
+sub.From("producers")
+sub.Where().AddExpression("name = ?", "foo")
+sub.SubQuery = true
+
+d := NewDelete().From("tasks")
+d.Where().AddExpression("producer_id IN "+sub.String(), sub.GetArguments()...)
+```
+
+#### If you find this project useful or want to support the author, you can send tokens to any of these wallets
 - Bitcoin: bc1qgx5c3n7q26qv0tngculjz0g78u6mzavy2vg3tf
 - Ethereum: 0x62812cb089E0df31347ca32A1610019537bbFe0D
 - Dogecoin: DET7fbNzZftp4sGRrBehfVRoi97RiPKajV

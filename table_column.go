@@ -73,8 +73,3 @@ func (c *column) String() string {
 	}
 	return b.String()
 }
-
-// NewColumn init column
-func NewColumn() *column {
-	return &column{}
-}
