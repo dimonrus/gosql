@@ -199,7 +199,7 @@ CREATE TABLE circles (
     EXCLUDE USING gist (c WITH &&)
 );
 
-circles := CreateTable("circles")
+circles := gosql.CreateTable("circles")
 circles.AddColumn("c").Type("circle")
 exclude := circles.AddConstraint().Exclude().Using("gist")
 exclude.ExcludeElement().Expression().Add("c")
@@ -333,63 +333,79 @@ name.Constraint().Check().Expression().Add("name <> ''")
 ```
 CREATE UNIQUE INDEX title_idx ON films (title);
 
-idx := CreateIndex("films", "title").Name("title_idx").Unique()
+idx := gosql.CreateIndex("films", "title").Name("title_idx").Unique()
 OR
-idx = CreateIndex().Table("films").Name("title_idx").Unique()
+idx = gosql.CreateIndex().Table("films").Name("title_idx").Unique()
 idx.Expression().Add("title")
 OR
-idx = CreateIndex("films", "title").Unique().AutoName()
+idx = gosql.CreateIndex("films", "title").Unique().AutoName()
 ```
 
 ###### Create unique index
 ```
 CREATE UNIQUE INDEX title_idx ON films (title) INCLUDE (director, rating);
 
-idx := CreateIndex("films", "title").Name("title_idx").Include("director", "rating").Unique()
+idx := gosql.CreateIndex("films", "title").Name("title_idx").Include("director", "rating").Unique()
 OR
-idx = CreateIndex("films", "title").AutoName().Include("director", "rating").Unique()
+idx = gosql.CreateIndex("films", "title").AutoName().Include("director", "rating").Unique()
 ```
 
 ###### Create index with storage param
 ```
 CREATE INDEX title_idx ON films (title) WITH (deduplicate_items = off);
 
-idx := CreateIndex("films", "title").Name("title_idx").With("deduplicate_items = off")
+idx := gosql.CreateIndex("films", "title").Name("title_idx").With("deduplicate_items = off")
 ```
 
 ###### Create index with expression
 ```
 CREATE INDEX ON films ((lower(title)));
 
-idx := CreateIndex("films", "(lower(title))")
+idx := gosql.CreateIndex("films", "(lower(title))")
 ```
 
 ###### Create index with collate
 ```
 CREATE INDEX title_idx_german ON films (title COLLATE "de_DE");
 
-idx := CreateIndex("films", `title COLLATE "de_DE"`).Name("title_idx_german")
+idx := gosql.CreateIndex("films", `title COLLATE "de_DE"`).Name("title_idx_german")
 ```
 
 ###### Create index nulls first
 ```
 CREATE INDEX title_idx_nulls_low ON films (title NULLS FIRST);
 
-idx := CreateIndex("films", `title NULLS FIRST`).Name("title_idx_nulls_low")
+idx := gosql.CreateIndex("films", `title NULLS FIRST`).Name("title_idx_nulls_low")
 ```
 
 ###### Create index with using
 ```
 CREATE INDEX pointloc ON points USING gist (box(location,location));
 
-idx := CreateIndex("points", "box(location,location)").Name("pointloc").Using("gist")
+idx := gosql.CreateIndex("points", "box(location,location)").Name("pointloc").Using("gist")
 ```
 
 ###### Create index concurrently
 ```
 CREATE INDEX CONCURRENTLY sales_quantity_index ON sales_table (quantity);
 
-idx := CreateIndex("sales_table", "quantity").Name("sales_quantity_index").Concurrently()
+idx := gosql.CreateIndex("sales_table", "quantity").Name("sales_quantity_index").Concurrently()
+```
+
+### Comment examples
+
+###### Comment column
+```
+COMMENT ON COLUMN table_name.column IS 'The column comment';
+
+c := gosql.Comment().Column("table_name.column", "The column comment")
+```
+
+###### Comment table
+```
+COMMENT ON TABLE table_name IS 'The table comment';
+
+c := gosql.Comment().Table("table_name", "The table comment")
 ```
 
 #### By expressing support to the author, you thereby motivate me to continue working on libraries and developing projects
