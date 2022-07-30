@@ -326,3 +326,8 @@ name := distributors.AddColumn("name").Type("varchar(40)")
 name.Constraint().NotNull()
 name.Constraint().Check().Expression().Add("name <> ''")
 ```
+
+#### By expressing support to the author, you thereby motivate me to continue working on libraries and developing projects
+- Bitcoin: bc1qgx5c3n7q26qv0tngculjz0g78u6mzavy2vg3tf
+- Ethereum: 0x62812cb089E0df31347ca32A1610019537bbFe0D
+- Dogecoin: DET7fbNzZftp4sGRrBehfVRoi97RiPKajV
