@@ -414,7 +414,7 @@ c := gosql.Comment().Table("table_name", "The table comment")
 ```
 DELETE FROM films WHERE (kind <> ?);
 
-d := NewDelete().From("films")
+d := gosql.NewDelete().From("films")
 d.Where().AddExpression("kind <> ?", "Musical")
 ```
 
@@ -422,14 +422,14 @@ d.Where().AddExpression("kind <> ?", "Musical")
 ```
 DELETE FROM films;
 
-d := NewDelete().From("films")
+d := gosql.NewDelete().From("films")
 ```
 
 ###### Delete with condition returning all
 ```
 DELETE FROM tasks WHERE (status = ?) RETURNING *;
 
-d := NewDelete().From("tasks")
+d := gosql.NewDelete().From("tasks")
 d.Returning().Add("*")
 d.Where().AddExpression("status = ?", "DONE")
 ```
@@ -438,7 +438,7 @@ d.Where().AddExpression("status = ?", "DONE")
 ```
 DELETE FROM tasks WHERE (producer_id IN (SELECT id FROM producers WHERE (name = ?)));
 
-sub := NewSelect()
+sub := gosql.NewSelect()
 sub.Columns().Add("id")
 sub.From("producers")
 sub.Where().AddExpression("name = ?", "foo")
@@ -446,6 +446,148 @@ sub.SubQuery = true
 
 d := NewDelete().From("tasks")
 d.Where().AddExpression("producer_id IN "+sub.String(), sub.GetArguments()...)
+```
+
+### Update query (support full [PG14 SQL specification](https://www.postgresql.org/docs/current/sql-update.html)) examples
+
+###### Update with condition
+```
+UPDATE films SET kind = ? WHERE (kind = ?);
+
+u := gosql.NewUpdate().Table("films")
+u.Set().Append("kind = ?", "Dramatic")
+u.Where().AddExpression("kind = ?", "Drama")
+```
+
+###### Update complex expression
+```
+UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT WHERE (city = ? AND date = ?);
+
+u := gosql.NewUpdate().Table("weather")
+u.Set().Add("temp_lo = temp_lo+1", "temp_hi = temp_lo+15", "prcp = DEFAULT")
+u.Where().
+    AddExpression("city = ?", "San Francisco").
+    AddExpression("date = ?", "2003-07-03")
+```
+
+###### Update with returning
+```
+UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT WHERE (city = ? AND date = ?) RETURNING temp_lo, temp_hi, prcp;
+
+u := gosql.NewUpdate().Table("weather")
+u.Set().Add("temp_lo = temp_lo+1", "temp_hi = temp_lo+15", "prcp = DEFAULT")
+u.Returning().Add("temp_lo", "temp_hi", "prcp")
+u.Where().
+    AddExpression("city = ?", "San Francisco").
+    AddExpression("date = ?", "2003-07-03")
+```
+
+###### Update from
+```
+UPDATE employees SET sales_count = sales_count + 1 FROM accounts WHERE (accounts.name = ? AND employees.id = accounts.sales_person);
+
+u := gosql.NewUpdate().Table("employees").From("accounts")
+u.Set().Add("sales_count = sales_count + 1")
+u.Where().
+    AddExpression("accounts.name = ?", "Acme Corporation").
+    AddExpression("employees.id = accounts.sales_person")
+```
+
+###### Update sub select
+```
+UPDATE employees SET sales_count = sales_count + 1 WHERE (id = (SELECT sales_person FROM accounts WHERE (name = ?)));
+
+sub := gosql.NewSelect()
+sub.From("accounts")
+sub.Columns().Add("sales_person")
+sub.Where().AddExpression("name = ?", "Acme Corporation")
+sub.SubQuery = true
+
+u := gosql.NewUpdate().Table("employees")
+u.Set().Add("sales_count = sales_count + 1")
+u.Where().AddExpression("id = "+sub.String(), sub.GetArguments()...)
+```
+
+### Insert query (support full [PG14 SQL specification](https://www.postgresql.org/docs/current/sql-insert.html)) examples
+
+###### Insert values
+```
+INSERT INTO user (name, entity_id, created_at) VALUES (?, ?, ?), (?, ?, ?) RETURNING id, created_at;
+
+i := gosql.NewInsert().Into("user")
+i.Columns().Add("name", "entity_id", "created_at")
+i.Returning().Add("id", "created_at")
+i.Columns().Arg("foo", 10, "2021-01-01T10:10:00Z")
+i.Columns().Arg("bar", 20, "2021-01-01T10:10:00Z")
+```
+
+###### Insert with
+```
+WITH dict AS (SELECT * FROM dictionary d JOIN relation r ON r.dictionary_id = d.id WHERE (some = ?)) INSERT INTO user (name, entity_id, created_at) RETURNING id, created_at;
+
+i := gosql.NewInsert().Into("user")
+i.Columns().Add("name", "entity_id", "created_at")
+i.Returning().Add("id", "created_at")
+
+q := gosql.NewSelect()
+q.From("dictionary d")
+q.Columns().Add("*")
+q.Where().AddExpression("some = ?", 1)
+q.Relate("JOIN relation r ON r.dictionary_id = d.id")
+
+i.With().Add("dict", q)
+```
+
+###### Insert conflict
+```
+INSERT INTO distributors (did, dname) VALUES (?, ?), (?, ?) ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname;
+
+i := gosql.NewInsert().Into("distributors")
+i.Columns().Add("did", "dname")
+i.Columns().Arg(5, "Gizmo Transglobal")
+i.Columns().Arg(6, "Associated Computing, Inc")
+i.Conflict().Object("did").Action("UPDATE").Set().Add("dname = EXCLUDED.dname")
+```
+
+###### Insert conflict no action
+```
+INSERT INTO distributors (did, dname) VALUES (?, ?) ON CONFLICT (did) DO NOTHING;
+
+i := gosql.NewInsert().Into("distributors")
+i.Columns().Add("did", "dname")
+i.Columns().Arg(7, "Redline GmbH")
+i.Conflict().Object("did").Action("NOTHING")
+```
+
+###### Insert conflict with condition
+```
+INSERT INTO distributors AS d (did, dname) VALUES (?, ?) ON CONFLICT (did) DO UPDATE SET dname = EXCLUDED.dname || ' (formerly ' || d.dname || ')' WHERE (d.zipcode <> '21201');
+
+i := gosql.NewInsert().Into("distributors AS d")
+i.Columns().Add("did", "dname")
+i.Columns().Arg(8, "Anvil Distribution")
+i.Conflict().Object("did").Action("UPDATE").Set().Add("dname = EXCLUDED.dname || ' (formerly ' || d.dname || ')'")
+i.Conflict().Where().AddExpression("d.zipcode <> '21201'")
+```
+
+###### Insert on conflict on constraint
+```
+INSERT INTO distributors (did, dname) VALUES (?, ?) ON CONFLICT ON CONSTRAINT distributors_pkey DO NOTHING;
+
+i := gosql.NewInsert().Into("distributors")
+i.Columns().Add("did", "dname")
+i.Columns().Arg(9, "Antwerp Design")
+i.Conflict().Constraint("distributors_pkey").Action("NOTHING")
+```
+
+###### Insert and returning
+```
+INSERT INTO distributors (did, dname) VALUES (?, ?) RETURNING did;
+
+i := gosql.NewInsert().Into("distributors")
+i.Columns().Add("did", "dname")
+i.Columns().Arg(1, "XYZ Widgets")
+i.Returning().Add("did")
 ```
 
 #### If you find this project useful or want to support the author, you can send tokens to any of these wallets
