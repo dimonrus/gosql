@@ -2,7 +2,7 @@
 
 ## *Postgres SQL builder*
 
-### Create table (support full [PG14 SQL specification](https://www.postgresql.org/docs/current/sql-createtable.html)) examples
+### Create table (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-createtable.html)) examples
 
 ###### Table with named primary key constraint
 ```
@@ -327,7 +327,7 @@ name.Constraint().NotNull()
 name.Constraint().Check().Expression().Add("name <> ''")
 ```
 
-### Create Index (support full [PG14 SQL specification](https://www.postgresql.org/docs/current/sql-createindex.html)) examples
+### Create Index (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-createindex.html)) examples
 
 ###### Create simple index
 ```
@@ -408,7 +408,7 @@ COMMENT ON TABLE table_name IS 'The table comment';
 c := gosql.Comment().Table("table_name", "The table comment")
 ```
 
-### Delete query (support full [PG14 SQL specification](https://www.postgresql.org/docs/current/sql-delete.html)) examples
+### Delete query (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-delete.html)) examples
 
 ###### Delete with condition
 ```
@@ -448,7 +448,7 @@ d := NewDelete().From("tasks")
 d.Where().AddExpression("producer_id IN "+sub.String(), sub.GetArguments()...)
 ```
 
-### Update query (support full [PG14 SQL specification](https://www.postgresql.org/docs/current/sql-update.html)) examples
+### Update query (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-update.html)) examples
 
 ###### Update with condition
 ```
@@ -508,7 +508,7 @@ u.Set().Add("sales_count = sales_count + 1")
 u.Where().AddExpression("id = "+sub.String(), sub.GetArguments()...)
 ```
 
-### Insert query (support full [PG14 SQL specification](https://www.postgresql.org/docs/current/sql-insert.html)) examples
+### Insert query (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-insert.html)) examples
 
 ###### Insert values
 ```

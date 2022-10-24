@@ -4,15 +4,17 @@ import "strings"
 
 // [ CONSTRAINT constraint_name ]
 // { NOT NULL |
-//  NULL |
-//  CHECK ( expression ) [ NO INHERIT ] |
-//  DEFAULT default_expr |
-//  GENERATED ALWAYS AS ( generation_expr ) STORED |
-//  GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ] |
-//  UNIQUE index_parameters |
-//  PRIMARY KEY index_parameters |
-//  REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ]
-//    [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
+//
+//	NULL |
+//	CHECK ( expression ) [ NO INHERIT ] |
+//	DEFAULT default_expr |
+//	GENERATED ALWAYS AS ( generation_expr ) STORED |
+//	GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ] |
+//	UNIQUE [ NULLS [ NOT ] DISTINCT ] index_parameters |
+//	PRIMARY KEY index_parameters |
+//	REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ]
+//	  [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
+//
 // [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
 type constraintColumn struct {
 	// name
@@ -37,6 +39,8 @@ type constraintColumn struct {
 	deferrable *bool
 	// initially
 	initially string
+	// nulls not distinct
+	nullsNotDistinct bool
 }
 
 // Name set name
@@ -48,6 +52,12 @@ func (c *constraintColumn) Name(name string) *constraintColumn {
 // NotNull is constraint nullable
 func (c *constraintColumn) NotNull() *constraintColumn {
 	c.notNull = true
+	return c
+}
+
+// NullNotDistinct is unique constraint null not distinct
+func (c *constraintColumn) NullNotDistinct() *constraintColumn {
+	c.nullsNotDistinct = true
 	return c
 }
 
@@ -129,7 +139,11 @@ func (c *constraintColumn) String() string {
 		}
 	}
 	if c.unique != nil {
-		b.WriteString(" UNIQUE" + c.unique.String())
+		if c.nullsNotDistinct {
+			b.WriteString(" UNIQUE NULLS NOT DISTINCT" + c.unique.String())
+		} else {
+			b.WriteString(" UNIQUE" + c.unique.String())
+		}
 	}
 	if c.primary != nil {
 		b.WriteString(" PRIMARY KEY" + c.primary.String())
@@ -162,5 +176,6 @@ func (c *constraintColumn) IsEmpty() bool {
 		c.primary == nil &&
 		c.references.IsEmpty() &&
 		c.deferrable == nil &&
-		c.initially == "")
+		c.initially == "" &&
+		!c.nullsNotDistinct)
 }

@@ -3,11 +3,13 @@ package gosql
 import "strings"
 
 // CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] [ [ IF NOT EXISTS ] name ] ON [ ONLY ] table_name [ USING method ]
-//    ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass [ ( opclass_parameter = value [, ... ] ) ] ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
-//    [ INCLUDE ( column_name [, ...] ) ]
-//    [ WITH ( storage_parameter [= value] [, ... ] ) ]
-//    [ TABLESPACE tablespace_name ]
-//    [ WHERE predicate ]
+//
+//	( { column_name | ( expression ) } [ COLLATE collation ] [ opclass [ ( opclass_parameter = value [, ... ] ) ] ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
+//	[ INCLUDE ( column_name [, ...] ) ]
+//	[ NULLS [ NOT ] DISTINCT ]
+//	[ WITH ( storage_parameter [= value] [, ... ] ) ]
+//	[ TABLESPACE tablespace_name ]
+//	[ WHERE predicate ]
 type index struct {
 	// UNIQUE
 	unique bool
@@ -35,6 +37,8 @@ type index struct {
 	where Condition
 	// generate name automatically
 	autoName bool
+	// is nulls not distinct
+	nullsNotDistinct bool
 }
 
 // Using method
@@ -123,6 +127,12 @@ func (i *index) Where() *Condition {
 	return &i.where
 }
 
+// NullsNotDistinct set null not distinct
+func (i *index) NullsNotDistinct() *index {
+	i.nullsNotDistinct = true
+	return i
+}
+
 // Unique set unique
 func (i *index) Unique() *index {
 	i.unique = true
@@ -155,7 +165,11 @@ func (i *index) String() string {
 	b := strings.Builder{}
 	b.WriteString("CREATE")
 	if i.unique {
-		b.WriteString(" UNIQUE")
+		if i.nullsNotDistinct {
+			b.WriteString(" UNIQUE NULLS NOT DISTINCT")
+		} else {
+			b.WriteString(" UNIQUE")
+		}
 	}
 	b.WriteString(" INDEX")
 	if i.concurrently {

@@ -35,6 +35,34 @@ func TestQB_String(t *testing.T) {
 	fmt.Println(qb.String())
 }
 
+func TestWith_Recursive(t *testing.T) {
+	// WITH RECURSIVE employee_recursive(distance, employee_name, manager_name) AS (
+	//    SELECT 1, employee_name, manager_name
+	//    FROM employee
+	//    WHERE manager_name = 'Mary'
+	//  UNION ALL
+	//    SELECT er.distance + 1, e.employee_name, e.manager_name
+	//    FROM employee_recursive er, employee e
+	//    WHERE er.employee_name = e.manager_name
+	//  )
+	//SELECT distance, employee_name FROM employee_recursive;
+
+	employee := NewSelect().From("employee")
+	employee.Columns().Add("1", "employee_name", "manager_name")
+	employee.Where().AddExpression("manager_name = ?", "Mary")
+
+	reqEmployee := NewSelect().From("employee_recursive er", "employee e")
+	reqEmployee.Columns().Add("er.distance + 1", "e.employee_name", "e.manager_name")
+	reqEmployee.Where().AddExpression("er.employee_name = e.manager_name")
+	employee.Union(reqEmployee)
+
+	s := NewSelect().From("employee_recursive")
+	s.Columns().Add("distance", "employee_name")
+	s.With().Recursive().Add("employee_recursive(distance, employee_name, manager_name)", employee)
+
+	t.Log(s.String())
+}
+
 func TestCondition_IsEmpty(t *testing.T) {
 	var c *Condition
 	if !c.IsEmpty() {

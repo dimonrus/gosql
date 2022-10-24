@@ -4,11 +4,13 @@ import "strings"
 
 // [ CONSTRAINT constraint_name ]
 // { CHECK ( expression ) [ NO INHERIT ] |
-//  UNIQUE ( column_name [, ... ] ) index_parameters |
-//  PRIMARY KEY ( column_name [, ... ] ) index_parameters |
-//  EXCLUDE [ USING index_method ] ( exclude_element WITH operator [, ... ] ) index_parameters [ WHERE ( predicate ) ] |
-//  FOREIGN KEY ( column_name [, ... ] ) REFERENCES reftable [ ( refcolumn [, ... ] ) ]
-//    [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
+//
+//	UNIQUE [ NULLS [ NOT ] DISTINCT ] ( column_name [, ... ] ) index_parameters |
+//	PRIMARY KEY ( column_name [, ... ] ) index_parameters |
+//	EXCLUDE [ USING index_method ] ( exclude_element WITH operator [, ... ] ) index_parameters [ WHERE ( predicate ) ] |
+//	FOREIGN KEY ( column_name [, ... ] ) REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+//	  [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE referential_action ] [ ON UPDATE referential_action ] }
+//
 // [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
 type constraintTable struct {
 	// name
@@ -27,6 +29,8 @@ type constraintTable struct {
 	deferrable *bool
 	// initially
 	initially string
+	// nulls not distinct
+	nullsNotDistinct bool
 }
 
 // Name set name
@@ -41,6 +45,12 @@ func (c *constraintTable) Check() *Condition {
 		c.check = NewSqlCondition(ConditionOperatorAnd)
 	}
 	return c.check
+}
+
+// NullNotDistinct is unique constraint null not distinct
+func (c *constraintTable) NullNotDistinct() *constraintTable {
+	c.nullsNotDistinct = true
+	return c
 }
 
 // Unique get unique expression
@@ -84,7 +94,8 @@ func (c *constraintTable) IsEmpty() bool {
 		c.exclude.IsEmpty() &&
 		c.foreignKey.IsEmpty() &&
 		c.deferrable == nil &&
-		c.initially == "")
+		c.initially == "" &&
+		!c.nullsNotDistinct)
 }
 
 // String render table constraint
@@ -100,7 +111,11 @@ func (c *constraintTable) String() string {
 		b.WriteString(" CHECK " + c.check.String())
 	}
 	if !c.unique.IsEmpty() {
-		b.WriteString(" UNIQUE " + c.unique.String())
+		if c.nullsNotDistinct {
+			b.WriteString(" UNIQUE NULLS NOT DISTINCT " + c.unique.String())
+		} else {
+			b.WriteString(" UNIQUE " + c.unique.String())
+		}
 	}
 	if !c.primary.IsEmpty() {
 		b.WriteString(" PRIMARY KEY " + c.primary.String())

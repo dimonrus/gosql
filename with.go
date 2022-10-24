@@ -8,6 +8,14 @@ type with struct {
 	keys map[int]string
 	// slice of queries
 	queries []*Select
+	// recursive
+	recursive bool
+}
+
+// Recursive query
+func (w *with) Recursive() *with {
+	w.recursive = true
+	return w
 }
 
 // Len of with queries
@@ -41,6 +49,7 @@ func (w *with) Add(name string, qb *Select) *with {
 func (w *with) Reset() *with {
 	w.queries = make([]*Select, 0)
 	w.keys = make(map[int]string, 0)
+	w.recursive = false
 	return w
 }
 
@@ -49,6 +58,9 @@ func (w *with) String() string {
 	var b strings.Builder
 	if w.Len() > 0 {
 		b.WriteString("WITH ")
+		if w.recursive {
+			b.WriteString("RECURSIVE ")
+		}
 		for index, q := range w.queries {
 			if index < len(w.queries)-1 {
 				b.WriteString(w.keys[index] + " AS (" + q.String() + "),")
