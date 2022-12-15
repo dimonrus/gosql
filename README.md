@@ -590,6 +590,159 @@ i.Columns().Arg(1, "XYZ Widgets")
 i.Returning().Add("did")
 ```
 
+### Select query (partial support [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-select.html)) examples
+
+###### Simple select from table
+```
+SELECT * FROM name
+
+s := NewSelect().From("name")
+s.Columns().Add("*")
+```
+
+###### Select from join using
+```
+SELECT f.title, f.did, d.name, f.date_prod, f.kind
+FROM distributors d 
+    JOIN films f USING (did)
+
+s := NewSelect().From("distributors d").Relate("JOIN films f USING (did)")
+s.Columns().Add("f.title", "f.did", "d.name", "f.date_prod", "f.kind")
+```
+
+###### Select from join using
+```
+SELECT kind, sum(len) AS total FROM films GROUP BY kind
+
+s := NewSelect().From("films").GroupBy("kind")
+s.Columns().Add("kind", "sum(len) AS total")
+```
+
+###### Select group by having
+```
+SELECT kind, sum(len) AS total
+    FROM films
+    GROUP BY kind
+    HAVING sum(len) < interval '5 hours'
+
+s := NewSelect().From("films").GroupBy("kind")
+s.Columns().Add("kind", "sum(len) AS total")
+s.Having().AddExpression("sum(len) < interval '5 hours'")
+```
+
+###### Select order
+```
+SELECT * FROM distributors ORDER BY name
+
+s := NewSelect().From("distributors").AddOrder("name")
+s.Columns().Add("*")
+```
+
+###### Select union
+```
+SELECT distributors.name
+    FROM distributors
+WHERE distributors.name LIKE 'W%'
+UNION
+SELECT actors.name
+    FROM actors
+WHERE actors.name LIKE 'W%'
+
+s := NewSelect().From("distributors")
+s.Columns().Add("distributors.name")
+s.Where().AddExpression("distributors.name LIKE 'W%'")
+u := NewSelect().From("actors")
+u.Columns().Add("actors.name")
+u.Where().AddExpression("actors.name LIKE 'W%'")
+```
+
+###### Select from unnest
+```
+SELECT * FROM unnest(ARRAY['a','b','c','d','e','f']) WITH ORDINALITY
+
+s := NewSelect().From("unnest(ARRAY['a','b','c','d','e','f']) WITH ORDINALITY")
+s.Columns().Add("*")
+```
+
+###### Select from tables
+```
+SELECT m.name AS mname, pname
+FROM manufacturers m, LATERAL get_product_names(m.id) pname;
+
+s := NewSelect().From("manufacturers m", "LATERAL get_product_names(m.id) pname")
+s.Columns().Add("m.name AS mname", "pname")
+```
+
+###### Select union intersect
+```
+WITH some AS (
+    SELECT * FROM some_table 
+    UNION (
+        SELECT * FROM some_table_union_1 INTERSECT SELECT * FROM some_table_union_2
+     )
+) 
+SELECT * FROM main_table
+
+m := NewSelect().From("main_table")
+m.Columns().Add("*")
+q := NewSelect().From("some_table")
+q.Columns().Add("*")
+u1 := NewSelect().From("some_table_union_1")
+u1.Columns().Add("*")
+u2 := NewSelect().From("some_table_union_2")
+u2.Columns().Add("*")
+u1.Intersect(u2)
+u1.SubQuery = true
+q.Union(u1)
+
+m.With().Add("some", q)
+```
+
+###### Select union intersect
+```
+WITH RECURSIVE employee_recursive(distance, employee_name, manager_name) AS (
+    SELECT 1, employee_name, manager_name
+    FROM employee
+    WHERE manager_name = 'Mary'
+  UNION
+    SELECT er.distance + 1, e.employee_name, e.manager_name
+    FROM employee_recursive er, employee e
+    WHERE er.employee_name = e.manager_name
+  )
+SELECT distance, employee_name FROM employee_recursive;
+
+employee := NewSelect().From("employee")
+employee.Columns().Add("1", "employee_name", "manager_name")
+employee.Where().AddExpression("manager_name = ?", "Mary")
+
+reqEmployee := NewSelect().From("employee_recursive er", "employee e")
+reqEmployee.Columns().Add("er.distance + 1", "e.employee_name", "e.manager_name")
+reqEmployee.Where().AddExpression("er.employee_name = e.manager_name")
+employee.Union(reqEmployee)
+
+s := NewSelect().From("employee_recursive")
+s.Columns().Add("distance", "employee_name")
+s.With().Recursive().Add("employee_recursive(distance, employee_name, manager_name)", employee)
+```
+
+###### Select left join group order having limit
+```
+SELECT t.id, t.name, c.code 
+FROM table AS t
+LEFT JOIN country AS c ON c.tid = t.id
+GROUP BY t.id, t.name, c.code 
+ORDER BY t.name
+LIMIT 10 OFFSET 30
+
+s := NewSelect().
+From("table AS t").
+Relate("LEFT JOIN country AS c ON c.tid = t.id").
+GroupBy("t.id", "t.name", "c.code").
+AddOrder("t.name").
+SetPagination(10, 30)
+s.Columns().Add("t.id", "t.name", "c.code")
+```
+
 #### If you find this project useful or want to support the author, you can send tokens to any of these wallets
 - Bitcoin: bc1qgx5c3n7q26qv0tngculjz0g78u6mzavy2vg3tf
 - Ethereum: 0x62812cb089E0df31347ca32A1610019537bbFe0D
