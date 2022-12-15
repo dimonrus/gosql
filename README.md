@@ -592,7 +592,7 @@ i.Returning().Add("did")
 
 ### Select query (partial support [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-select.html)) examples
 
-###### Simple select from table
+###### Select from table
 ```
 SELECT * FROM name
 
@@ -610,7 +610,7 @@ s := NewSelect().From("distributors d").Relate("JOIN films f USING (did)")
 s.Columns().Add("f.title", "f.did", "d.name", "f.date_prod", "f.kind")
 ```
 
-###### Select from join using
+###### Select sum group by
 ```
 SELECT kind, sum(len) AS total FROM films GROUP BY kind
 
