@@ -8,6 +8,30 @@ type ISQL interface {
 	SQL() (query string, params []any, returning []any)
 }
 
+// Check Table for ISQL
+var _ = ISQL(&Table{})
+
+// Check Index for ISQL
+var _ = ISQL(&Index{})
+
+// Check Comment for ISQL
+var _ = ISQL(&Comment{})
+
+// Check Select for ISQL
+var _ = ISQL(&Select{})
+
+// Check Insert for ISQL
+var _ = ISQL(&Insert{})
+
+// Check Update for ISQL
+var _ = ISQL(&Update{})
+
+// Check Delete for ISQL
+var _ = ISQL(&Delete{})
+
+// Check Merge for ISQL
+var _ = ISQL(&Merge{})
+
 // SQList Collection of SQL element
 type SQList []ISQL
 

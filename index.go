@@ -10,7 +10,7 @@ import "strings"
 //	[ WITH ( storage_parameter [= value] [, ... ] ) ]
 //	[ TABLESPACE tablespace_name ]
 //	[ WHERE predicate ]
-type index struct {
+type Index struct {
 	// UNIQUE
 	unique bool
 	// CONCURRENTLY
@@ -42,49 +42,49 @@ type index struct {
 }
 
 // Using method
-func (i *index) Using(using string) *index {
+func (i *Index) Using(using string) *Index {
 	i.using = using
 	return i
 }
 
 // Include add include columns
-func (i *index) Include(column ...string) *index {
+func (i *Index) Include(column ...string) *Index {
 	i.include.Add(column...)
 	return i
 }
 
 // With add with params
-func (i *index) With(param ...string) *index {
+func (i *Index) With(param ...string) *Index {
 	i.with.Add(param...)
 	return i
 }
 
 // Name set index name
-func (i *index) Name(name string) *index {
+func (i *Index) Name(name string) *Index {
 	i.name = name
 	return i
 }
 
 // Table set table name
-func (i *index) Table(name string) *index {
+func (i *Index) Table(name string) *Index {
 	i.tableName = name
 	return i
 }
 
 // AutoName generate name on render
-func (i *index) AutoName() *index {
+func (i *Index) AutoName() *Index {
 	i.autoName = true
 	return i
 }
 
 // Concurrently create index
-func (i *index) Concurrently() *index {
+func (i *Index) Concurrently() *Index {
 	i.concurrently = true
 	return i
 }
 
 // AutoName generate name on render
-func (i *index) getAutoName() string {
+func (i *Index) getAutoName() string {
 	b := strings.Builder{}
 	if i.tableName != "" {
 		b.WriteString(i.tableName + "_")
@@ -112,41 +112,41 @@ func (i *index) getAutoName() string {
 }
 
 // Expression index expression
-func (i *index) Expression() *expression {
+func (i *Index) Expression() *expression {
 	return &i.expression
 }
 
 // TableSpace set table space
-func (i *index) TableSpace(space string) *index {
+func (i *Index) TableSpace(space string) *Index {
 	i.tablespace = space
 	return i
 }
 
 // Where get where condition
-func (i *index) Where() *Condition {
+func (i *Index) Where() *Condition {
 	return &i.where
 }
 
 // NullsNotDistinct set null not distinct
-func (i *index) NullsNotDistinct() *index {
+func (i *Index) NullsNotDistinct() *Index {
 	i.nullsNotDistinct = true
 	return i
 }
 
 // Unique set unique
-func (i *index) Unique() *index {
+func (i *Index) Unique() *Index {
 	i.unique = true
 	return i
 }
 
 // IfNotExists set if not exists
-func (i *index) IfNotExists() *index {
+func (i *Index) IfNotExists() *Index {
 	i.ifNotExists = true
 	return i
 }
 
 // IsEmpty check if empty
-func (i *index) IsEmpty() bool {
+func (i *Index) IsEmpty() bool {
 	return i == nil || (i.name == "" &&
 		i.tableName == "" &&
 		i.tablespace == "" &&
@@ -158,7 +158,7 @@ func (i *index) IsEmpty() bool {
 }
 
 // String render index query
-func (i *index) String() string {
+func (i *Index) String() string {
 	if i.IsEmpty() {
 		return ""
 	}
@@ -212,14 +212,14 @@ func (i *index) String() string {
 }
 
 // SQL common sql interface
-func (i *index) SQL() (query string, params []any, returning []any) {
+func (i *Index) SQL() (query string, params []any, returning []any) {
 	query = i.String()
 	return
 }
 
 // CreateIndex new index
-func CreateIndex(arg ...string) *index {
-	var i index
+func CreateIndex(arg ...string) *Index {
+	var i Index
 	if len(arg) > 0 {
 		i.tableName = arg[0]
 		if len(arg) > 1 {

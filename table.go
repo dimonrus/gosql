@@ -91,10 +91,12 @@ const (
 
 // Table create table query builder
 // CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name ( [
-//  { column_name data_type [ COMPRESSION compression_method ] [ COLLATE collation ] [ column_constraint [ ... ] ]
-//    | table_constraint
-//    | LIKE source_table [ like_option ... ] }
-//    [, ... ]
+//
+//	{ column_name data_type [ COMPRESSION compression_method ] [ COLLATE collation ] [ column_constraint [ ... ] ]
+//	  | table_constraint
+//	  | LIKE source_table [ like_option ... ] }
+//	  [, ... ]
+//
 // ] )
 // [ INHERITS ( parent_table [, ... ] ) ]
 // [ PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
@@ -104,10 +106,12 @@ const (
 // [ TABLESPACE tablespace_name ]
 //
 // CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name
-//     OF type_name [ (
-//   { column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
-//     | table_constraint }
-//     [, ... ]
+//
+//	  OF type_name [ (
+//	{ column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
+//	  | table_constraint }
+//	  [, ... ]
+//
 // ) ]
 // [ PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
 // [ USING method ]
@@ -116,10 +120,12 @@ const (
 // [ TABLESPACE tablespace_name ]
 //
 // CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] table_name
-//     PARTITION OF parent_table [ (
-//   { column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
-//     | table_constraint }
-//     [, ... ]
+//
+//	  PARTITION OF parent_table [ (
+//	{ column_name [ WITH OPTIONS ] [ column_constraint [ ... ] ]
+//	  | table_constraint }
+//	  [, ... ]
+//
 // ) ] { FOR VALUES partition_bound_spec | DEFAULT }
 // [ PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
 // [ USING method ]

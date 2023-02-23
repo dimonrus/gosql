@@ -49,31 +49,31 @@ import "strings"
 //  VIEW object_name
 // } IS 'text'
 
-type comment struct {
+type Comment struct {
 	detailedExpression detailedExpression
 }
 
 // IsEmpty check if empty
-func (c *comment) IsEmpty() bool {
+func (c *Comment) IsEmpty() bool {
 	return c == nil || c.detailedExpression.IsEmpty()
 }
 
 // Column comment column
-func (c *comment) Column(column string, comment string) *comment {
+func (c *Comment) Column(column string, comment string) *Comment {
 	c.detailedExpression.SetDetail("COLUMN " + column)
 	c.detailedExpression.Expression().Add(comment)
 	return c
 }
 
 // Table comment table
-func (c *comment) Table(table string, comment string) *comment {
+func (c *Comment) Table(table string, comment string) *Comment {
 	c.detailedExpression.SetDetail("TABLE " + table)
 	c.detailedExpression.Expression().Add(comment)
 	return c
 }
 
 // String render comment query
-func (c *comment) String() string {
+func (c *Comment) String() string {
 	if c.IsEmpty() {
 		return ""
 	}
@@ -86,12 +86,12 @@ func (c *comment) String() string {
 }
 
 // SQL common sql interface
-func (c *comment) SQL() (query string, params []any, returning []any) {
+func (c *Comment) SQL() (query string, params []any, returning []any) {
 	query = c.String()
 	return
 }
 
-// Comment init comment
-func Comment() *comment {
-	return &comment{}
+// NewComment init comment
+func NewComment() *Comment {
+	return &Comment{}
 }

@@ -268,7 +268,7 @@ func (q *Select) String() string {
 	return b.String()
 }
 
-// New Query Builder
+// NewSelect Query Builder
 func NewSelect() *Select {
 	return &Select{
 		with: with{
