@@ -80,4 +80,22 @@ func TestPreparePositionalArgsQuery(t *testing.T) {
 			t.Fatal("wrong max_args")
 		}
 	})
+	t.Run("pgsql", func(t *testing.T) {
+		q := NewSelect().From("some_table")
+		q.Columns().Add("foo", "bar")
+		q.Where().AddExpression("field_1 = ?", 1)
+		q.Where().AddExpression("field_2 = ?", true)
+		q.Where().AddExpression("field_3 = ?", "some")
+		query, params, returnings := PGSQL(q)
+		t.Log(query)
+		if query != "SELECT foo, bar FROM some_table WHERE (field_1 = $1 AND field_2 = $2 AND field_3 = $3)" {
+			t.Fatal("wrong postgres query")
+		}
+		if len(params) != 3 {
+			t.Fatal("wrong params count")
+		}
+		if len(returnings) != 0 {
+			t.Fatal("wrong returnings count")
+		}
+	})
 }

@@ -2,11 +2,9 @@ package gosql
 
 import (
 	"strconv"
+	"strings"
 	"unsafe"
 )
-
-// QueryHook allows to apply custom hook after build query
-var QueryHook func(query string) string
 
 // PostgresQueryParamHook Position argument
 func PostgresQueryParamHook(query string) string {
@@ -36,4 +34,13 @@ func PostgresQueryParamHook(query string) string {
 	}
 	b = b[:l]
 	return *(*string)(unsafe.Pointer(&b))
+}
+
+// PGSQL Transform to postgres params query
+func PGSQL(isql ISQL) (query string, params []any, returning []any) {
+	query, params, returning = isql.SQL()
+	if strings.Contains(query, "?") {
+		query = PostgresQueryParamHook(query)
+	}
+	return
 }
