@@ -15,6 +15,12 @@ func (i *columnIndexParameters) Columns() *expression {
 	return &i.columns
 }
 
+// Column set columns
+func (i *columnIndexParameters) Column(col ...string) *columnIndexParameters {
+	i.columns.Add(col...)
+	return i
+}
+
 // IndexParameters get index parameters
 func (i *columnIndexParameters) IndexParameters() *indexParameters {
 	return &i.indexParameters

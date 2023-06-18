@@ -895,6 +895,292 @@ insertWhen.Columns("station_id", "a", "b")
 insertWhen.Values().Add("sdn.station_id", "sdn.a", "sdn.b")
 ```
 
+### Alter table query (full support [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-altertable.html)) examples
+
+###### Add column
+```sql
+ALTER TABLE distributors ADD COLUMN address varchar(30);
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().Add().Column("address", "varchar(30)")
+```
+
+###### Add column with default constraint
+```sql
+ALTER TABLE measurements
+    ADD COLUMN mtime timestamp with time zone DEFAULT now();
+```
+```go
+alter := gosql.AlterTable("measurements")
+alter.Action().Add().Column("mtime", "timestamp with time zone").Constraint().Default("now()")
+```
+
+###### Add and alter column with default constraint
+```sql
+ALTER TABLE transactions
+    ADD COLUMN status varchar(30) DEFAULT 'old',
+    ALTER COLUMN status SET default 'current';
+```
+```go
+alter := gosql.AlterTable("transactions")
+alter.Action().Add().Column("status", "varchar(30)").Constraint().Default("'old'")
+alter.Action().AlterColumn("status").Set().Default("'current'")
+```
+
+###### Drop column restrict
+```sql
+ALTER TABLE distributors DROP COLUMN address RESTRICT;
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().Drop().Column("address").Restrict()
+```
+
+###### Change type of columns
+```sql
+ALTER TABLE distributors
+    ALTER COLUMN address SET DATA TYPE varchar(80),
+    ALTER COLUMN name SET DATA TYPE varchar(100);
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().AlterColumn("address").Set().DataType("varchar(80)")
+alter.Action().AlterColumn("name").Set().DataType("varchar(100)")
+```
+
+###### Change type of column using 
+```sql
+ALTER TABLE foo
+    ALTER COLUMN foo_timestamp SET DATA TYPE timestamp with time zone
+    USING
+    timestamp with time zone 'epoch' + foo_timestamp * interval '1 second';
+```
+```go
+alter := gosql.AlterTable("foo")
+alter.Action().AlterColumn("foo_timestamp").Set().DataType("timestamp with time zone").
+    Using("timestamp with time zone 'epoch' + foo_timestamp * interval '1 second'")
+```
+
+###### Change type of column using with default expression
+```sql
+ALTER TABLE foo
+    ALTER COLUMN foo_timestamp DROP DEFAULT,
+    ALTER COLUMN foo_timestamp TYPE timestamp with time zone
+        USING
+        timestamp with time zone 'epoch' + foo_timestamp * interval '1 second',
+    ALTER COLUMN foo_timestamp SET DEFAULT now();
+```
+```go
+alter := gosql.AlterTable("foo")
+alter.Action().AlterColumn("foo_timestamp").Drop().Default()
+alter.Action().AlterColumn("foo_timestamp").Set().DataType("timestamp with time zone").
+    Using("timestamp with time zone 'epoch' + foo_timestamp * interval '1 second'")
+alter.Action().AlterColumn("foo_timestamp").Set().Default("now()")
+```
+
+###### Rename existing column
+```sql
+ALTER TABLE distributors RENAME COLUMN address TO city;
+```
+```go
+alter := gosql.AlterTable("distributors").RenameColumn("address", "city")
+```
+
+###### Rename table
+```sql
+ALTER TABLE distributors RENAME TO suppliers;
+```
+```go
+alter := gosql.AlterTable("distributors").Rename("suppliers")
+```
+
+###### Rename constraint
+```sql
+ALTER TABLE distributors RENAME CONSTRAINT zipchk TO zip_check;
+```
+```go
+alter := gosql.AlterTable("distributors").RenameConstraint("zipchk", "zip_check")
+```
+
+###### Set column not null 
+```sql
+ALTER TABLE distributors ALTER COLUMN street SET NOT NULL;
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().AlterColumn("street").Set().NotNull()
+```
+
+###### Drop column not null 
+```sql
+ALTER TABLE distributors ALTER COLUMN street DROP NOT NULL;
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().AlterColumn("street").Drop().NotNull()
+```
+
+###### Add constraint
+```sql
+ALTER TABLE distributors ADD CONSTRAINT zipchk CHECK (char_length(zipcode) = 5);
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().Add().TableConstraint().Name("zipchk").Check().AddExpression("char_length(zipcode) = 5")
+```
+
+###### Add constraint no inherit
+```sql
+ALTER TABLE distributors ADD CONSTRAINT zipchk CHECK (char_length(zipcode) = 5) NO INHERIT;
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().Add().TableConstraint().Name("zipchk").NoInherit().Check().AddExpression("char_length(zipcode) = 5")
+```
+
+###### Remove constraint
+```sql
+ALTER TABLE distributors DROP CONSTRAINT zipchk;
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().Drop().Constraint("zipchk")
+```
+
+###### Remove constraint only from distributors table
+```sql
+ALTER TABLE ONLY distributors DROP CONSTRAINT zipchk;
+```
+```go
+alter := gosql.AlterTable("distributors").Only()
+alter.Action().Drop().Constraint("zipchk")
+```
+
+###### Add constraint foreign key
+```sql
+ALTER TABLE distributors ADD CONSTRAINT distfk FOREIGN KEY (address) REFERENCES addresses (address);
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().Add().TableConstraint().Name("distfk").
+    ForeignKey().Column("address").References().RefTable("addresses").Column("address")
+```
+
+###### Add constraint and validate
+```sql
+ALTER TABLE distributors ADD CONSTRAINT distfk FOREIGN KEY (address) REFERENCES addresses (address) NOT VALID;
+ALTER TABLE distributors VALIDATE CONSTRAINT distfk;
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().Add().NotValid().TableConstraint().Name("distfk").
+    ForeignKey().Column("address").References().RefTable("addresses").Column("address")
+
+alter = gosql.AlterTable("distributors")
+alter.Action().ValidateConstraint("distfk")
+```
+
+###### Add multicolumn unique constraint
+```sql
+ALTER TABLE distributors ADD CONSTRAINT dist_id_zipcode_key UNIQUE (dist_id, zipcode);
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().Add().TableConstraint().Name("dist_id_zipcode_key").Unique().Column("dist_id", "zipcode")
+```
+
+###### Add primary key
+```sql
+ALTER TABLE distributors ADD PRIMARY KEY (dist_id);
+```
+```go
+alter := gosql.AlterTable("distributors")
+alter.Action().Add().TableConstraint().PrimaryKey().Column("dist_id")
+```
+
+###### Set tablespace
+```sql
+ALTER TABLE distributors SET TABLESPACE fasttablespace;
+```
+```go
+alter := gosql.AlterTable("distributors").SetTableSpace("fasttablespace")
+```
+
+###### Set schema
+```sql
+ALTER TABLE myschema.distributors SET SCHEMA yourschema;
+```
+```go
+alter := gosql.AlterTable("myschema.distributors").SetSchema("yourschema")
+```
+
+###### Recreate primary key without blocking updates while the index is rebuilt
+```sql
+CREATE UNIQUE INDEX CONCURRENTLY dist_id_temp_idx ON distributors (dist_id);
+ALTER TABLE distributors DROP CONSTRAINT distributors_pkey,
+                         ADD CONSTRAINT distributors_pkey PRIMARY KEY USING INDEX dist_id_temp_idx;
+```
+```go
+unique := gosql.CreateIndex("distributors", "dist_id").Name("dist_id_temp_idx").Concurrently().Unique()
+
+alter := gosql.AlterTable("distributors")
+alter.Action().Drop().Constraint("distributors_pkey")
+alter.Action().Add().TableConstraintUsingIndex().Name("distributors_pkey").PrimaryKey().Using("dist_id_temp_idx")
+```
+
+###### Attach partition
+```sql
+ALTER TABLE measurement
+    ATTACH PARTITION measurement_y2016m07 FOR VALUES FROM ('2016-07-01') TO ('2016-08-01');
+```
+```go
+alter := gosql.AlterTable("distributors")
+bound := alter.AttachPartition("measurement_y2016m07")
+bound.From().Add("'2016-07-01'")
+bound.To().Add("'2016-08-01'")
+```
+
+###### Attach partition to a list-partitioned table
+```sql
+ALTER TABLE cities
+    ATTACH PARTITION cities_ab FOR VALUES IN ('a', 'b');
+```
+```go
+alter := gosql.AlterTable("cities")
+alter.AttachPartition("cities_ab").In().Add("'a'", "'b'")
+```
+
+###### Attach partition for values with
+```sql
+ALTER TABLE orders
+    ATTACH PARTITION orders_p4 FOR VALUES WITH (MODULUS 4, REMAINDER 3);
+```
+```go
+alter := gosql.AlterTable("orders")
+alter.AttachPartition("orders_p4").With().Add("MODULUS 4", "REMAINDER 3")
+```
+
+###### Attach partition default
+```sql
+ALTER TABLE cities
+    ATTACH PARTITION cities_partdef DEFAULT;
+```
+```go
+alter := gosql.AlterTable("cities")
+alter.AttachDefaultPartition("cities_partdef")
+```
+
+###### Attach partition default
+```sql
+ALTER TABLE measurement
+    DETACH PARTITION measurement_y2015m12;;
+```
+```go
+alter := gosql.AlterTable("cities")
+alter.DetachPartition("measurement_y2015m12")
+```
+
 #### If you find this project useful or want to support the author, you can send tokens to any of these wallets
 - Bitcoin: bc1qgx5c3n7q26qv0tngculjz0g78u6mzavy2vg3tf
 - Ethereum: 0x62812cb089E0df31347ca32A1610019537bbFe0D

@@ -51,3 +51,22 @@ func TestCondition_Replace(t *testing.T) {
 		t.Fatal("wrong replace")
 	}
 }
+
+func BenchmarkCondition_AddExpression(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		c := NewSqlCondition(ConditionOperatorAnd)
+		c.AddExpression("created_at BETWEEN ? AND ?", time.Now(), time.Now().Add(time.Minute))
+		c.AddExpression("is_active IS TRUE")
+		c.AddExpression("middle = ?", "center")
+		c.AddExpression("left = ?", "left")
+		c.AddExpression("top = ?", "top")
+
+		c1 := NewSqlCondition(ConditionOperatorAnd)
+		c1.AddExpression("created_at BETWEEN ? AND ?", time.Now(), time.Now().Add(time.Minute))
+		c1.AddExpression("is_active IS TRUE")
+		c1.AddExpression("middle = ?", "center")
+
+		c.Merge(ConditionOperatorOr, c1)
+	}
+	b.ReportAllocs()
+}

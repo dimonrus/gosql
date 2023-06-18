@@ -25,6 +25,8 @@ type constraintTable struct {
 	exclude excludeTable
 	// foreign key
 	foreignKey foreignKey
+	// no inherit
+	noInherit bool
 	// deferrable
 	deferrable *bool
 	// initially
@@ -45,6 +47,12 @@ func (c *constraintTable) Check() *Condition {
 		c.check = NewSqlCondition(ConditionOperatorAnd)
 	}
 	return c.check
+}
+
+// NoInherit set no inherit
+func (c *constraintTable) NoInherit() *constraintTable {
+	c.noInherit = true
+	return c
 }
 
 // NullNotDistinct is unique constraint null not distinct
@@ -109,6 +117,9 @@ func (c *constraintTable) String() string {
 	}
 	if !c.check.IsEmpty() {
 		b.WriteString(" CHECK " + c.check.String())
+	}
+	if c.noInherit {
+		b.WriteString(" NO INHERIT")
 	}
 	if !c.unique.IsEmpty() {
 		if c.nullsNotDistinct {

@@ -63,6 +63,22 @@ func TestWith_Recursive(t *testing.T) {
 	t.Log(s.String())
 }
 
+// goos: darwin
+// goarch: arm64
+// pkg: github.com/dimonrus/gosql
+// BenchmarkSelect_String
+// BenchmarkSelect_String-12    	 3984410	       280.6 ns/op	     344 B/op	      11 allocs/op
+func BenchmarkSelect(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		employee := NewSelect().From("employee")
+		employee.Columns().Add("1", "employee_name", "manager_name")
+		employee.Where().AddExpression("manager_name = ?", "Mary")
+		employee.Where().AddExpression("some_other = ?", 1000)
+		employee.Where().AddExpression("some_other = ?", "1000")
+	}
+	b.ReportAllocs()
+}
+
 func TestCondition_IsEmpty(t *testing.T) {
 	var c *Condition
 	if !c.IsEmpty() {

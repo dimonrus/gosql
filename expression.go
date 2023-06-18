@@ -83,6 +83,15 @@ func (e *expression) Get(delimiter string) (string, []any) {
 	return e.String(delimiter), e.GetArguments()
 }
 
+// Grow memory. Multiplier is 32
+func (e *expression) Grow(n int) *expression {
+	e.list.Grow(n * 32)
+	args := make([]any, 2*len(e.params)+n)
+	copy(args[0:], e.params)
+	e.params = args
+	return e
+}
+
 // Split to slice of string
 func (e *expression) Split() []string {
 	return strings.SplitN(e.list.String(), EnumDelimiter, -1)
@@ -90,5 +99,5 @@ func (e *expression) Split() []string {
 
 // NewExpression init expression
 func NewExpression() *expression {
-	return &expression{}
+	return (&expression{}).Grow(4)
 }

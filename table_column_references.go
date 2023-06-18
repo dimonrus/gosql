@@ -27,6 +27,12 @@ func (r *referencesColumn) Columns() *expression {
 	return &r.column
 }
 
+// Column reference columns
+func (r *referencesColumn) Column(col ...string) *referencesColumn {
+	r.column.Add(col...)
+	return r
+}
+
 // Match set match
 func (r *referencesColumn) Match(match string) *referencesColumn {
 	r.match = match

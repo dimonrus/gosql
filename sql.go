@@ -32,6 +32,9 @@ var _ = ISQL(&Delete{})
 // Check Merge for ISQL
 var _ = ISQL(&Merge{})
 
+// Check Alter for ISQL
+var _ = ISQL(&Alter{})
+
 // SQList Collection of SQL element
 type SQList []ISQL
 

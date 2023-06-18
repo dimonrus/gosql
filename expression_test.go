@@ -29,6 +29,11 @@ func TestExpression(t *testing.T) {
 	exp.Reset()
 }
 
+// goos: darwin
+// goarch: arm64
+// pkg: github.com/dimonrus/gosql
+// BenchmarkExpression_Get
+// BenchmarkExpression_Get-12    	36178676	        32.18 ns/op	      16 B/op	       1 allocs/op
 func BenchmarkExpression_Get(b *testing.B) {
 	ex := expression{}
 	ex.Append("foo = ?", 1)
@@ -39,10 +44,15 @@ func BenchmarkExpression_Get(b *testing.B) {
 	b.ReportAllocs()
 }
 
+// goos: darwin
+// goarch: arm64
+// pkg: github.com/dimonrus/gosql
+// BenchmarkExpression_Add
+// BenchmarkExpression_Add-12    	13390683	        86.47 ns/op	     320 B/op	       3 allocs/op
 func BenchmarkExpression_Add(b *testing.B) {
-	ex := expression{}
 	for i := 0; i < b.N; i++ {
-		ex.Append("foo = ?", "one")
+		ex := NewExpression()
+		ex.Append("foo = ?", "one", 6)
 	}
 	b.ReportAllocs()
 }

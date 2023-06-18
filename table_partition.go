@@ -2,7 +2,7 @@ package gosql
 
 import "strings"
 
-//{ column_name | ( expression ) } [ COLLATE collation ] [ opclass ]
+// { column_name | ( expression ) } [ COLLATE collation ] [ opclass ]
 type partitionColumn struct {
 	expression expression
 	// collation
@@ -95,7 +95,9 @@ func (p *partitionTable) String() string {
 // partition_bound_spec
 // IN ( partition_bound_expr [, ...] ) |
 // FROM ( { partition_bound_expr | MINVALUE | MAXVALUE } [, ...] )
-//  TO ( { partition_bound_expr | MINVALUE | MAXVALUE } [, ...] ) |
+//
+//	TO ( { partition_bound_expr | MINVALUE | MAXVALUE } [, ...] ) |
+//
 // WITH ( MODULUS numeric_literal, REMAINDER numeric_literal )
 type partitionBound struct {
 	// in

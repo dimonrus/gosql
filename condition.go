@@ -24,7 +24,7 @@ type Condition struct {
 
 // NewSqlCondition init condition
 func NewSqlCondition(operator string) *Condition {
-	return &Condition{operator: operator}
+	return &Condition{operator: operator, expression: make([]string, 0, 8), argument: make([]interface{}, 0, 8)}
 }
 
 // Get string of conditions
@@ -53,7 +53,7 @@ func (c *Condition) IsEmpty() bool {
 
 // GetArguments get arguments
 func (c *Condition) GetArguments() []interface{} {
-	var arguments = make([]interface{}, 0)
+	var arguments = make([]interface{}, 0, 4)
 	if c.merge != nil {
 		for i := range (*c.merge).condition {
 			arguments = append(arguments, (*c.merge).condition[i].GetArguments()...)
@@ -83,16 +83,14 @@ func (c *Condition) Replace(cond *Condition) *Condition {
 
 // Merge with conditions
 func (c *Condition) Merge(operator string, conditions ...*Condition) *Condition {
-	if len(conditions) > 0 {
-		for i := range conditions {
-			if conditions[i] == nil {
-				continue
-			}
-			if c.merge == nil {
-				c.merge = &merge{operator: operator, condition: []*Condition{}}
-			}
-			c.merge.condition = append(c.merge.condition, conditions[i])
+	for i := range conditions {
+		if conditions[i].IsEmpty() {
+			continue
 		}
+		if c.merge == nil {
+			c.merge = &merge{operator: operator, condition: make([]*Condition, 0, len(conditions))}
+		}
+		c.merge.condition = append(c.merge.condition, conditions[i])
 	}
 	return c
 }
