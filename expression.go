@@ -88,7 +88,7 @@ func (e *expression) Grow(n int) *expression {
 	e.list.Grow(n * 32)
 	args := make([]any, 2*len(e.params)+n)
 	copy(args[0:], e.params)
-	e.params = args
+	e.params = args[:len(e.params)]
 	return e
 }
 
