@@ -15,6 +15,8 @@ const (
 	StorageExtended Storage = "EXTENDED"
 	// StorageMain MAIN
 	StorageMain Storage = "MAIN"
+	// StorageDefault DEFAULT
+	StorageDefault Storage = "DEFAULT"
 )
 
 // where set action is one of:

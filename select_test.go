@@ -66,8 +66,8 @@ func TestWith_Recursive(t *testing.T) {
 // goos: darwin
 // goarch: arm64
 // pkg: github.com/dimonrus/gosql
-// BenchmarkSelect_String
-// BenchmarkSelect_String-12    	 3984410	       280.6 ns/op	     344 B/op	      11 allocs/op
+// BenchmarkSelect
+// BenchmarkSelect-12    	 4600735	       253.6 ns/op	     296 B/op	      10 allocs/op
 func BenchmarkSelect(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		employee := NewSelect().From("employee")

@@ -38,8 +38,11 @@ func (w *with) Get(name string) *Select {
 
 // Add With
 func (w *with) Add(name string, qb *Select) *with {
-	if name != "" {
+	if name != "" && qb != nil {
 		w.queries = append(w.queries, qb)
+		if w.keys == nil {
+			w.keys = make(map[int]string, 2)
+		}
 		w.keys[len(w.queries)-1] = name
 	}
 	return w
@@ -47,8 +50,8 @@ func (w *with) Add(name string, qb *Select) *with {
 
 // Reset With query
 func (w *with) Reset() *with {
-	w.queries = make([]*Select, 0)
-	w.keys = make(map[int]string, 0)
+	w.queries = w.queries[:0]
+	w.keys = make(map[int]string, 2)
 	w.recursive = false
 	return w
 }
@@ -75,8 +78,9 @@ func (w *with) String() string {
 // GetArguments get values from all queries
 func (w *with) GetArguments() []any {
 	var params []any
-	// order is important. map does not have order
+	// order is important. map does not have an order
 	if w.Len() > 0 {
+		params = make([]any, 0, w.Len()*2)
 		for index := range w.queries {
 			params = append(params, w.queries[index].GetArguments()...)
 		}

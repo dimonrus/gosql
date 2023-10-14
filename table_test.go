@@ -5,7 +5,7 @@ import "testing"
 func TestTable_String(t *testing.T) {
 	t.Run("simple", func(t *testing.T) {
 		// CREATE TABLE films (
-		//    code        char(5) CONSTRAINT firstkey PRIMARY KEY,
+		//    code        char(5) STORAGE MAIN CONSTRAINT firstkey PRIMARY KEY,
 		//    title       varchar(40) NOT NULL,
 		//    did         integer NOT NULL,
 		//    date_prod   date,
@@ -13,14 +13,14 @@ func TestTable_String(t *testing.T) {
 		//    len         interval hour to minute
 		// );
 		films := CreateTable("films")
-		films.AddColumn("code").Type("char(5)").Constraint().Name("firstkey").PrimaryKey()
+		films.AddColumn("code").Type("char(5)").Storage(StorageMain).Constraint().Name("firstkey").PrimaryKey()
 		films.AddColumn("title").Type("varchar(40)").Constraint().NotNull()
 		films.AddColumn("did").Type("integer").Constraint().NotNull()
 		films.AddColumn("date_prod").Type("date")
 		films.AddColumn("kind").Type("varchar(10)")
 		films.AddColumn("len").Type("interval hour to minute")
 		t.Log(films.String())
-		if films.String() != "CREATE TABLE films (code char(5) CONSTRAINT firstkey PRIMARY KEY, title varchar(40) NOT NULL, did integer NOT NULL, date_prod date, kind varchar(10), len interval hour to minute);" {
+		if films.String() != "CREATE TABLE films (code char(5) STORAGE MAIN CONSTRAINT firstkey PRIMARY KEY, title varchar(40) NOT NULL, did integer NOT NULL, date_prod date, kind varchar(10), len interval hour to minute);" {
 			t.Fatal("films table wrong query")
 		}
 

@@ -2,7 +2,7 @@
 
 ## *Postgres SQL builder*
 
-### Create table (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-createtable.html)) examples
+### Create table (support full [PG16 SQL specification](https://www.postgresql.org/docs/current/sql-createtable.html)) examples
 
 ###### Table with named primary key constraint
 ```sql
@@ -350,7 +350,7 @@ name.Constraint().NotNull()
 name.Constraint().Check().Expression().Add("name <> ''")
 ```
 
-### Create Index (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-createindex.html)) examples
+### Create Index (support full [PG16 SQL specification](https://www.postgresql.org/docs/current/sql-createindex.html)) examples
 
 ###### Create simple index
 ```sql
@@ -441,7 +441,7 @@ COMMENT ON TABLE table_name IS 'The table comment';
 c := gosql.Comment().Table("table_name", "The table comment")
 ```
 
-### Delete query (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-delete.html)) examples
+### Delete query (support full [PG16 SQL specification](https://www.postgresql.org/docs/current/sql-delete.html)) examples
 
 ###### Delete with condition
 ```sql
@@ -485,7 +485,7 @@ d := NewDelete().From("tasks")
 d.Where().AddExpression("producer_id IN "+sub.String(), sub.GetArguments()...)
 ```
 
-### Update query (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-update.html)) examples
+### Update query (support full [PG16 SQL specification](https://www.postgresql.org/docs/current/sql-update.html)) examples
 
 ###### Update with condition
 ```sql
@@ -550,7 +550,7 @@ u.Set().Add("sales_count = sales_count + 1")
 u.Where().AddExpression("id = "+sub.String(), sub.GetArguments()...)
 ```
 
-### Insert query (support full [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-insert.html)) examples
+### Insert query (support full [PG16 SQL specification](https://www.postgresql.org/docs/current/sql-insert.html)) examples
 
 ###### Insert values
 ```sql
@@ -803,7 +803,7 @@ SetPagination(10, 30)
 s.Columns().Add("t.id", "t.name", "c.code")
 ```
 
-### Merge query (full support [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-merge.html)) examples
+### Merge query (full support [PG16 SQL specification](https://www.postgresql.org/docs/current/sql-merge.html)) examples
 
 ###### Merge update insert
 ```sql
@@ -895,7 +895,7 @@ insertWhen.Columns("station_id", "a", "b")
 insertWhen.Values().Add("sdn.station_id", "sdn.a", "sdn.b")
 ```
 
-### Alter table query (full support [PG15 SQL specification](https://www.postgresql.org/docs/current/sql-altertable.html)) examples
+### Alter table query (full support [PG16 SQL specification](https://www.postgresql.org/docs/current/sql-altertable.html)) examples
 
 ###### Add column
 ```sql

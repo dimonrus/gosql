@@ -2,7 +2,7 @@ package gosql
 
 import "strings"
 
-// { column_name data_type [ COMPRESSION compression_method ] [ COLLATE collation ] [ column_constraint [ ... ] ] }
+// { column_name data_type [ STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN | DEFAULT } ] [ COMPRESSION compression_method ] [ COLLATE collation ] [ column_constraint [ ... ] ] }
 type column struct {
 	// column name
 	name string
@@ -14,6 +14,8 @@ type column struct {
 	compression string
 	// column constraint
 	constraint constraintColumn
+	// column storage
+	storage Storage
 }
 
 // Collate set sort rule
@@ -37,6 +39,12 @@ func (c *column) Name(name string) *column {
 // Type set column type
 func (c *column) Type(dataType string) *column {
 	c.dataType = dataType
+	return c
+}
+
+// Storage set column storage
+func (c *column) Storage(storage Storage) *column {
+	c.storage = storage
 	return c
 }
 
@@ -67,6 +75,9 @@ func (c *column) String() string {
 	}
 	if c.collate != "" {
 		b.WriteString(" COLLATE " + c.compression)
+	}
+	if c.storage != "" {
+		b.WriteString(" STORAGE " + string(c.storage))
 	}
 	if !c.constraint.IsEmpty() {
 		b.WriteString(c.constraint.String())

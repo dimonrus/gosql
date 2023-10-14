@@ -271,10 +271,6 @@ func (q *Select) String() string {
 // NewSelect Query Builder
 func NewSelect() *Select {
 	return &Select{
-		with: with{
-			keys:    make(map[int]string),
-			queries: make([]*Select, 0),
-		},
 		where:  Condition{operator: ConditionOperatorAnd},
 		having: Condition{operator: ConditionOperatorAnd},
 	}
