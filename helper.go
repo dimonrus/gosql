@@ -29,20 +29,20 @@ func (s Sorting) Allowed(items map[string]string) []string {
 
 // Contains check if sorting contains sort field
 // contained == true if sorting has sorted field
+// direction == nil if no sort direction provided
 // direction == true if provided sort direction is ascending
 // direction == false if provided sort direction is descending
-func (s Sorting) Contains(field string) (contained bool, direction bool) {
+func (s Sorting) Contains(field string) (contained bool, direction *bool) {
 	for _, sortOrder := range s {
-		parts := strings.Split(sortOrder, ":")
-		if field == parts[0] {
+		if parts := strings.Split(sortOrder, ":"); field == parts[0] {
 			contained = true
-			if len(parts) > 1 {
-				if strings.ToLower(parts[1]) == "desc" {
-					direction = false
-				}
+			if len(parts) == 1 {
+				break
 			} else {
-				direction = true
+				dir := strings.ToLower(parts[1]) != "desc"
+				direction = &dir
 			}
+			return
 		}
 	}
 	return
