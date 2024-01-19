@@ -69,3 +69,27 @@ func TestSearchString_PrepareLikeValue(t *testing.T) {
 		}
 	})
 }
+
+func TestSorting_Contains(t *testing.T) {
+	t.Run("asc direction 1", func(t *testing.T) {
+		s := Sorting{"foo", "bar:asc"}
+		contains, dir := s.Contains("foo")
+		if !contains || !dir {
+			t.Fatal("wrong asc implementation")
+		}
+	})
+	t.Run("desc direction 1", func(t *testing.T) {
+		s := Sorting{"foo", "bar:DESC"}
+		contains, dir := s.Contains("bar")
+		if !contains || dir {
+			t.Fatal("wrong desc implementation")
+		}
+	})
+	t.Run("not contained", func(t *testing.T) {
+		s := Sorting{"foo", "bar:DESC"}
+		contains, dir := s.Contains("bar1")
+		if contains || dir {
+			t.Fatal("wrong desc implementation")
+		}
+	})
+}
