@@ -8,11 +8,11 @@ import (
 func TestSorting_Parse(t *testing.T) {
 	t.Run("sorting_valid", func(t *testing.T) {
 		s := Sorting{"   createdAt:desc", "name", "qty:ASC"}
-		result := s.Allowed(map[string]string{"createdAt": "created_at", "name": "internal_name", "qty": "quantity"})
+		result := s.Allowed(map[string]string{"createdAt": "created_at {dir} NULLS LAST", "name": "internal_name", "qty": "quantity"})
 		if len(result) != 3 {
 			t.Fatal("wrong sorting parser")
 		}
-		if result[0] != "created_at DESC" {
+		if result[0] != "created_at DESC NULLS LAST" {
 			t.Fatal("wrong created parser")
 		}
 		if result[1] != "internal_name" {
@@ -22,6 +22,19 @@ func TestSorting_Parse(t *testing.T) {
 			t.Fatal("wrong quantity parser")
 		}
 	})
+}
+
+// goos: darwin
+// goarch: arm64
+// pkg: github.com/dimonrus/gosql
+// BenchmarkSorting_Allowed
+// BenchmarkSorting_Allowed-12    	 5917818	       198.0 ns/op	     160 B/op	       5 allocs/op
+func BenchmarkSorting_Allowed(b *testing.B) {
+	s := Sorting{"   createdAt:desc", "name", "qty:ASC"}
+	for i := 0; i < b.N; i++ {
+		s.Allowed(map[string]string{"createdAt": "created_at NULLS LAST", "name": "internal_name", "qty": "quantity"})
+	}
+	b.ReportAllocs()
 }
 
 func TestPeriodFilter(t *testing.T) {

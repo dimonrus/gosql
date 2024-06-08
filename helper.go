@@ -15,10 +15,15 @@ func (s Sorting) Allowed(items map[string]string) []string {
 	var result = make([]string, 0, len(s))
 	for _, field := range s {
 		parts := strings.Split(strings.Trim(field, " 	"), ":")
-		if v, ok := items[parts[0]]; ok {
+		key := parts[0]
+		if v, ok := items[key]; ok {
 			if len(parts) > 1 {
-				if strings.ToLower(parts[1]) == "desc" {
-					v += " DESC"
+				if strings.EqualFold(parts[1], "desc") {
+					if strings.Contains(v, "{dir}") {
+						v = strings.Replace(v, "{dir}", "DESC", -1)
+					} else {
+						v += " DESC"
+					}
 				}
 			}
 			result = append(result, v)
