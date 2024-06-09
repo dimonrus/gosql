@@ -24,6 +24,8 @@ func (s Sorting) Allowed(items map[string]string) []string {
 					} else {
 						v += " DESC"
 					}
+				} else if strings.Contains(v, "{dir}") {
+					v = strings.Replace(v, "{dir}", "ASC", -1)
 				}
 			}
 			result = append(result, v)

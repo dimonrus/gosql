@@ -8,7 +8,7 @@ import (
 func TestSorting_Parse(t *testing.T) {
 	t.Run("sorting_valid", func(t *testing.T) {
 		s := Sorting{"   createdAt:desc", "name", "qty:ASC"}
-		result := s.Allowed(map[string]string{"createdAt": "created_at {dir} NULLS LAST", "name": "internal_name", "qty": "quantity"})
+		result := s.Allowed(map[string]string{"createdAt": "created_at {dir} NULLS LAST", "name": "internal_name", "qty": "quantity {dir} NULLS FIRST"})
 		if len(result) != 3 {
 			t.Fatal("wrong sorting parser")
 		}
@@ -18,7 +18,7 @@ func TestSorting_Parse(t *testing.T) {
 		if result[1] != "internal_name" {
 			t.Fatal("wrong internal_name parser")
 		}
-		if result[2] != "quantity" {
+		if result[2] != "quantity ASC NULLS FIRST" {
 			t.Fatal("wrong quantity parser")
 		}
 	})
