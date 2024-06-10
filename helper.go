@@ -17,15 +17,15 @@ func (s Sorting) Allowed(items map[string]string) []string {
 		parts := strings.Split(strings.Trim(field, " 	"), ":")
 		key := parts[0]
 		if v, ok := items[key]; ok {
-			if len(parts) > 1 {
-				if strings.EqualFold(parts[1], "desc") {
-					if strings.Contains(v, "{dir}") {
-						v = strings.Replace(v, "{dir}", "DESC", -1)
-					} else {
-						v += " DESC"
-					}
-				} else if strings.Contains(v, "{dir}") {
+			if strings.Contains(v, "{dir}") {
+				if len(parts) > 1 && strings.EqualFold(parts[1], "desc") {
+					v = strings.Replace(v, "{dir}", "DESC", -1)
+				} else {
 					v = strings.Replace(v, "{dir}", "ASC", -1)
+				}
+			} else {
+				if len(parts) > 1 && strings.EqualFold(parts[1], "desc") {
+					v += " DESC"
 				}
 			}
 			result = append(result, v)
